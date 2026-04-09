@@ -1,0 +1,30 @@
+# Secrets
+.env
+.env.local
+*.key
+
+# Python
+venv/
+__pycache__/
+*.pyc
+*.pyo
+*.egg-info/
+.pytest_cache/
+
+# Lucy runtime files
+lucy.pid
+lucy.log
+*.log
+
+# OS / editor
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+*.swp
+
+# Memory/data files
+memory.json
+memory/memory.json
+memory/reminders.json
+memory/reminders.json
