@@ -28,3 +28,6 @@ memory.json
 memory/memory.json
 memory/reminders.json
 memory/reminders.json
+
+# Lucy's learning journal (personal data, never commit)
+memory/learning_journal.jsonl

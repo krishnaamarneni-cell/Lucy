@@ -77,6 +77,65 @@ def get_time_context():
         "day_str": now.strftime("%A"),
     }
 
+
+# --- Mentor (Claude Code) routing ---
+MENTOR_TRIGGERS = [
+    "ask claude code",
+    "ask your mentor",
+    "use claude code",
+    "use your mentor",
+    "ask claude",
+    "mentor,",
+    "mentor ",
+    "claude code,",
+    "hey claude code",
+]
+
+MENTOR_TASK_PREFIXES = [
+    "write code to",
+    "write a script to",
+    "write a script that",
+    "write python to",
+    "build a script",
+    "build me a script",
+    "code a function",
+    "can you code",
+    "create a script",
+]
+
+
+def needs_mentor(text):
+    t = text.lower()
+    if any(trig in t for trig in MENTOR_TRIGGERS):
+        return True
+    # Prefixes can appear anywhere in the sentence, not just at the start
+    if any(prefix in t for prefix in MENTOR_TASK_PREFIXES):
+        return True
+    return False
+
+
+def extract_mentor_task(text):
+    """Strip trigger words from the user's request so the mentor sees a clean task."""
+    t = text.strip()
+    lower = t.lower()
+
+    # First try explicit trigger phrases
+    for trig in MENTOR_TRIGGERS:
+        if trig in lower:
+            idx = lower.index(trig)
+            t = t[idx + len(trig):].lstrip(" ,:-")
+            return t or text
+
+    # Then try task prefixes — keep from the prefix onward
+    for prefix in MENTOR_TASK_PREFIXES:
+        if prefix in lower:
+            idx = lower.index(prefix)
+            t = t[idx:]
+            return t or text
+
+    return t or text
+
+
 def think(user_input):
     mem = load_memory()
     memory_context = get_context(mem)
@@ -101,7 +160,19 @@ def think(user_input):
     messages = [{"role": "system", "content": system_msg}]
     messages += mem["history"][-10:]
 
-    if needs_volume(user_input):
+    if needs_mentor(user_input):
+        from brain.mentor import ask_mentor, summarize_for_voice
+        from brain.learning_journal import log_mentor_session
+        task = extract_mentor_task(user_input)
+        print(f"🎓 Asking mentor (Claude Code): {task[:80]}")
+        result = ask_mentor(task)
+        log_mentor_session(user_input, result, note="voice-triggered")
+        reply = summarize_for_voice(result)
+        mem["history"].append({"role": "user", "content": user_input})
+        mem["history"].append({"role": "assistant", "content": reply})
+        save_memory(mem)
+        return reply
+    elif needs_volume(user_input):
         reply = handle_volume(user_input)
         if reply:
             mem["history"].append({"role": "user", "content": user_input})

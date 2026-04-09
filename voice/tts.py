@@ -99,10 +99,11 @@ def speak(text):
                 asyncio.run(_synthesize(sentence, mp3_path))
                 wav_path = _convert_to_wav(mp3_path)
 
-                _current_proc = _play_wav_windows(wav_path)
+                proc = _play_wav_windows(wav_path)
+                _current_proc = proc
 
-                # Poll for completion or stop request
-                while _current_proc.poll() is None:
+                # Poll for completion or stop request (use local ref to avoid races)
+                while proc.poll() is None:
                     if state.stop_requested:
                         _stop_current()
                         break
