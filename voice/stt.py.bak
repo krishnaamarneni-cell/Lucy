@@ -14,13 +14,13 @@ load_dotenv()
 client = groq.Groq(api_key=os.getenv("GROQ_API_KEY"))
 
 SAMPLE_RATE = 16000
-FRAME_MS = 30
+FRAME_MS = 30                    # VAD works on 10/20/30 ms frames
 FRAME_SAMPLES = int(SAMPLE_RATE * FRAME_MS / 1000)
-VAD_AGGRESSIVENESS = 2           # 0 = permissive, 3 = very strict
+VAD_AGGRESSIVENESS = 2           # 0 = permissive, 3 = very strict. 2 is the sweet spot.
 MAX_RECORD_SECONDS = 10          # hard cap on recording length
 SILENCE_TAIL_MS = 800            # stop after this much trailing silence
 START_TIMEOUT_SECONDS = 4        # how long to wait for speech to start
-MIN_SPEECH_MS = 300              # ignore recordings shorter than this
+MIN_SPEECH_MS = 300              # ignore recordings shorter than this (noise clicks)
 
 JUNK = {".", "see", "see.", "hello.", "bye", "thanks", "thank you",
         "you", "be", "the", "sí", "si", "el", "them", "a", "i", "oh", "uh",
@@ -96,21 +96,22 @@ def listen(timeout=None):
             )
         os.remove(tmp_path)
 
+        # verbose_json gives us no_speech_prob — use it to reject hallucinations
         text = result.text.strip() if hasattr(result, "text") else str(result).strip()
 
-        # Whisper's own confidence check
+        # Check Whisper's own confidence (available in verbose_json mode)
         segments = getattr(result, "segments", []) or []
         if segments:
             avg_no_speech = sum(s.get("no_speech_prob", 0) for s in segments) / len(segments)
             if avg_no_speech > 0.6:
-                return None
+                return None  # Whisper itself thinks this isn't speech
 
         clean = text.lower().strip(".!?,")
         if len(clean) < 3 or clean in JUNK:
             return None
 
-        # Strip leaked wake word
-        for wake in ("alexa,", "alexa.", "alexa", "hey alexa,", "hey alexa"):
+        # Strip leading wake word if it leaked into the transcript
+        for wake in ("alexa", "alexa,", "hey alexa", "hey alexa,"):
             if clean.startswith(wake):
                 text = text[len(wake):].strip(" ,.")
                 break

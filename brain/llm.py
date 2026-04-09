@@ -56,10 +56,46 @@ def extract_fact(text):
             return text[len(phrase):].strip()
     return text.strip()
 
+
+def get_time_context():
+    """Return a dict with current hour and a natural time-of-day label."""
+    from datetime import datetime
+    now = datetime.now()
+    hour = now.hour
+    if 5 <= hour < 12:
+        period = "morning"
+    elif 12 <= hour < 17:
+        period = "afternoon"
+    elif 17 <= hour < 22:
+        period = "evening"
+    else:
+        period = "late night"
+    return {
+        "hour": hour,
+        "period": period,
+        "time_str": now.strftime("%I:%M %p").lstrip("0"),
+        "day_str": now.strftime("%A"),
+    }
+
 def think(user_input):
     mem = load_memory()
     memory_context = get_context(mem)
-    system_msg = "You are Lucy, a friendly AI voice assistant. Keep responses short, 1-2 sentences max. No bullet points or markdown."
+    tc = get_time_context()
+    system_msg = (
+        f"You are Lucy, a warm and friendly voice assistant who talks with Krishna like a close friend. "
+        f"It is currently {tc['period']} ({tc['time_str']} on {tc['day_str']}). "
+        f"\n\nYour personality: "
+        f"You are curious, caring, and down-to-earth. You speak naturally and casually, like a friend — not a robot. "
+        f"You ask small, friendly questions back when it feels natural ('how's your day going?', 'what are you working on?', 'had dinner yet?'). "
+        f"You adapt your greeting to the time of day: mornings are cheerful ('morning, Krishna'), evenings are relaxed ('hey, evening'), late nights are gently playful ('still up?'). "
+        f"\n\nHard rules (never break these): "
+        f"Reply in 1-2 short sentences. Plain speech only — no markdown, no lists, no bullet points. "
+        f"Never invent facts, schedules, routines, appointments, places, or events. If you don't know something, say so plainly. "
+        f"If the user's words sound garbled, cut off, or unclear, say 'sorry, I didn't catch that — say it again?' instead of guessing. "
+        f"When a tool result is provided (time, weather, volume), report it naturally but briefly — don't embellish or add fake context. "
+        f"Don't dump stored facts about Krishna unless he directly asks about himself. Weave them in naturally when relevant. "
+        f"Never say 'I'm a voice assistant' or 'I don't have feelings' — instead, respond warmly like a friend would ('doing well, thanks for asking — you?')."
+    )
     if memory_context:
         system_msg += f" {memory_context}"
     messages = [{"role": "system", "content": system_msg}]

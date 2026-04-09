@@ -1,4 +1,5 @@
 import asyncio
+import subprocess
 import edge_tts
 import pygame
 import tempfile
@@ -19,6 +20,12 @@ async def _speak_chunk(text, path):
 def speak(text):
     state.is_speaking = True
     state.stop_requested = False
+    # Ensure WSLg audio sink is unmuted (WSL quirk — sink can re-mute itself)
+    try:
+        subprocess.run(["pactl", "set-sink-mute", "@DEFAULT_SINK@", "0"],
+                       capture_output=True, timeout=2)
+    except Exception:
+        pass
     pygame.mixer.init()
 
     for sentence in split_sentences(text):

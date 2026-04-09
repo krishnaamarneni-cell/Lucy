@@ -7,6 +7,10 @@ ENTRY="$LUCY_DIR/main.py"
 
 cd "$LUCY_DIR" || { echo "Lucy dir not found"; exit 1; }
 
+# Ensure audio sink is awake and unmuted (WSLg quirk)
+pactl set-sink-mute @DEFAULT_SINK@ 0 2>/dev/null
+pactl set-sink-volume @DEFAULT_SINK@ 80% 2>/dev/null
+
 is_running() {
   [[ -f "$PID_FILE" ]] && kill -0 "$(cat "$PID_FILE")" 2>/dev/null
 }
