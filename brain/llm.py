@@ -7,6 +7,7 @@ from brain.tools import get_datetime
 from brain.weather import get_weather
 from brain.reminders import add_reminder
 from brain.volume import handle_volume
+from brain.agents.career import needs_career, ask_career, ask_career_fast, is_heavy_career_task, summarize_for_voice as career_summarize
 from brain.world_state import format_for_prompt as _format_world_state
 
 load_dotenv()
@@ -265,6 +266,20 @@ def think_stream(user_input):
     messages += mem["history"][-10:]
 
     # --- Tool branches that bypass the LLM entirely: yield full reply in one chunk ---
+    if needs_career(user_input):
+        if is_heavy_career_task(user_input):
+            print(f"💼 Career agent (heavy): {user_input[:80]}")
+            result = ask_career(user_input)
+            reply = career_summarize(result)
+        else:
+            print(f"💼 Career agent (fast): {user_input[:80]}")
+            reply = ask_career_fast(user_input)
+        mem["history"].append({"role": "user", "content": user_input})
+        mem["history"].append({"role": "assistant", "content": reply})
+        save_memory(mem)
+        yield reply
+        return
+
     if needs_mentor(user_input):
         from brain.mentor import ask_mentor, summarize_for_voice
         from brain.learning_journal import log_mentor_session
@@ -391,7 +406,19 @@ def think(user_input):
     messages = [{"role": "system", "content": system_msg}]
     messages += mem["history"][-10:]
 
-    if needs_mentor(user_input):
+    if needs_career(user_input):
+        if is_heavy_career_task(user_input):
+            print(f"💼 Career agent (heavy): {user_input[:80]}")
+            result = ask_career(user_input)
+            reply = career_summarize(result)
+        else:
+            print(f"💼 Career agent (fast): {user_input[:80]}")
+            reply = ask_career_fast(user_input)
+        mem["history"].append({"role": "user", "content": user_input})
+        mem["history"].append({"role": "assistant", "content": reply})
+        save_memory(mem)
+        return reply
+    elif needs_mentor(user_input):
         from brain.mentor import ask_mentor, summarize_for_voice
         from brain.learning_journal import log_mentor_session
         task = extract_mentor_task(user_input)
