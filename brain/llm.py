@@ -8,10 +8,16 @@ from brain.weather import get_weather
 from brain.reminders import add_reminder
 from brain.volume import handle_volume
 from brain.agents.career import needs_career, ask_career, ask_career_fast, is_heavy_career_task, summarize_for_voice as career_summarize
+from brain.agents.goose import needs_goose, ask_goose, summarize_for_voice as goose_summarize
+from brain.model_config import get_active_model, MODELS
 from brain.world_state import format_for_prompt as _format_world_state
 
 load_dotenv()
 client = Groq(api_key=os.getenv("GROQ_API_KEY"))
+
+def _get_ollama_client():
+    from openai import OpenAI
+    return OpenAI(base_url="http://localhost:11434/v1", api_key="ollama")
 
 SEARCH_TRIGGERS = ["latest", "news", "score", "price", "who won", "stock"]
 PERSONAL_QUESTIONS = ["my name", "my age", "i told you", "do you remember", "you know me"]
@@ -280,6 +286,16 @@ def think_stream(user_input):
         yield reply
         return
 
+
+    if needs_goose(user_input):
+        print(f"🪿 Goose agent: {user_input[:80]}")
+        result = ask_goose(user_input)
+        reply = goose_summarize(result)
+        mem["history"].append({"role": "user", "content": user_input})
+        mem["history"].append({"role": "assistant", "content": reply})
+        save_memory(mem)
+        yield reply
+        return
     if needs_mentor(user_input):
         from brain.mentor import ask_mentor, summarize_for_voice
         from brain.learning_journal import log_mentor_session
@@ -340,8 +356,14 @@ def think_stream(user_input):
     messages.append({"role": "user", "content": content})
 
     # --- THE MAIN STREAMING CALL ---
-    stream = client.chat.completions.create(
-        model="llama-3.1-8b-instant",
+    active = get_active_model()
+    model_info = MODELS[active]
+    if model_info["provider"] == "ollama":
+        _client = _get_ollama_client()
+    else:
+        _client = client
+    stream = _client.chat.completions.create(
+        model=model_info["model"],
         messages=messages,
         stream=True,
     )
@@ -418,6 +440,14 @@ def think(user_input):
         mem["history"].append({"role": "assistant", "content": reply})
         save_memory(mem)
         return reply
+    elif needs_goose(user_input):
+        print(f"🪿 Goose agent: {user_input[:80]}")
+        result = ask_goose(user_input)
+        reply = goose_summarize(result)
+        mem["history"].append({"role": "user", "content": user_input})
+        mem["history"].append({"role": "assistant", "content": reply})
+        save_memory(mem)
+        return reply
     elif needs_mentor(user_input):
         from brain.mentor import ask_mentor, summarize_for_voice
         from brain.learning_journal import log_mentor_session
@@ -473,8 +503,14 @@ def think(user_input):
         content = user_input
 
     messages.append({"role": "user", "content": content})
-    response = client.chat.completions.create(
-        model="llama-3.1-8b-instant",
+    active = get_active_model()
+    model_info = MODELS[active]
+    if model_info["provider"] == "ollama":
+        _client = _get_ollama_client()
+    else:
+        _client = client
+    response = _client.chat.completions.create(
+        model=model_info["model"],
         messages=messages
     )
     reply = response.choices[0].message.content

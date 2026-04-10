@@ -8,6 +8,7 @@ import { ModeToggle } from "@/components/ModeToggle";
 import { ChatBox } from "@/components/ChatBox";
 import { EventStream } from "@/components/EventStream";
 import { KillSwitch } from "@/components/KillSwitch";
+import { ModelSelector } from "@/components/ModelSelector";
 import type { LucyStatus } from "@/lib/types";
 
 export default function DashboardPage() {
@@ -69,6 +70,7 @@ export default function DashboardPage() {
           </div>
 
           {/* Mode toggle — click to change Lucy's mode */}
+          <ModelSelector />
           <Link
             href="/voice"
             className="rounded-md border border-amber-500/30 bg-amber-500/10 px-3 py-1.5 text-xs font-semibold uppercase tracking-widest text-amber-300 transition hover:bg-amber-500/20"

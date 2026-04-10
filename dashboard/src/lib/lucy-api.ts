@@ -98,3 +98,19 @@ export function openEventStream(
 
 export const LUCY_API_URL = API_URL;
 export const LUCY_TOKEN = TOKEN;
+
+export async function getModelInfo() {
+  const res = await fetch(`${API_URL}/model`, { headers: authHeaders() });
+  if (!res.ok) throw new Error("Failed to fetch model info");
+  return res.json();
+}
+
+export async function setModel(modelId: string) {
+  const res = await fetch(`${API_URL}/model`, {
+    method: "POST",
+    headers: { ...authHeaders(), "Content-Type": "application/json" },
+    body: JSON.stringify({ model_id: modelId }),
+  });
+  if (!res.ok) throw new Error("Failed to set model");
+  return res.json();
+}

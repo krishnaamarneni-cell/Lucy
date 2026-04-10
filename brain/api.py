@@ -28,6 +28,7 @@ from brain.mode import (
     VALID_MODES,
     check_action,
 )
+from brain.model_config import get_model_info, set_active_model, get_active_model
 
 # ---------------------------------------------------------------------------
 # Auth token — generated on first run, persisted to ~/Lucy/.api_token
@@ -194,6 +195,19 @@ def chat(req: ChatRequest, authorization: str | None = Header(default=None)):
 
     return ChatResponse(reply=reply, mode=get_mode())
 
+
+@app.get("/model")
+async def model_info():
+    return get_model_info()
+
+@app.post("/model")
+async def change_model(body: dict):
+    model_id = body.get("model_id", "")
+    if set_active_model(model_id):
+        info = get_model_info()
+        bus.publish("model.changed", {"model": model_id, "name": info["current"]["name"]})
+        return info
+    raise HTTPException(status_code=400, detail=f"Unknown model: {model_id}")
 
 @app.post("/stop")
 def emergency_stop(authorization: str | None = Header(default=None)):
