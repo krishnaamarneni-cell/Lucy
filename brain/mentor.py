@@ -44,6 +44,60 @@ VOICE_MODE_INSTRUCTIONS = (
 )
 
 
+DESIGN_DIR = Path.home() / "Lucy" / "designs" / "awesome-design-md" / "design-md"
+
+# Keywords that suggest the user wants to build UI/website
+_UI_KEYWORDS = [
+    "website", "landing page", "web page", "webpage", "frontend",
+    "component", "ui", "dashboard", "layout", "design",
+    "build a page", "build a site", "create a page", "create a site",
+    "next.js", "react", "tailwind", "html", "css",
+]
+
+def _find_design_file(task: str) -> str:
+    """Find a matching design system file based on the task."""
+    if not DESIGN_DIR.exists():
+        return ""
+    t = task.lower()
+    # Check if any brand is mentioned
+    try:
+        for brand_dir in DESIGN_DIR.iterdir():
+            if brand_dir.is_dir() and brand_dir.name.lower() in t:
+                for fname in ["DESIGN.md", "README.md"]:
+                    md = brand_dir / fname
+                    if md.exists():
+                        return md.read_text()[:3000]
+    except Exception:
+        pass
+    return ""
+
+def _get_design_context(task: str) -> str:
+    """Build design context string if the task involves UI/website building."""
+    t = task.lower()
+    if not any(kw in t for kw in _UI_KEYWORDS):
+        return ""
+    
+    # Try to find a specific brand match
+    specific = _find_design_file(task)
+    if specific:
+        return (
+            "\n\nDESIGN SYSTEM: A design system file was found matching this request. "
+            "Follow these design guidelines for colors, fonts, spacing, and components:\n"
+            f"{specific}\n"
+        )
+    
+    # No specific brand — list available options
+    try:
+        available = [d.name for d in DESIGN_DIR.iterdir() if d.is_dir()]
+        brands = ", ".join(sorted(available)[:20])
+        return (
+            f"\n\nDESIGN SYSTEMS AVAILABLE: The following brand design systems are at "
+            f"{DESIGN_DIR}/. You can read any DESIGN.md file for styling guidance: {brands}. "
+            f"Pick the most appropriate one for the request, or use a clean modern style."
+        )
+    except Exception:
+        return ""
+
 def wrap_for_voice(task: str) -> str:
     """Prepend voice-mode instructions so Claude Code formats for speech."""
     return VOICE_MODE_INSTRUCTIONS + task
@@ -70,7 +124,7 @@ def ask_mentor(task: str, workspace: str = None, timeout: int = 300, voice_mode:
     start = time.time()
     try:
         result = subprocess.run(
-            [CLAUDE_BIN, "-p", (wrap_for_voice(task) if voice_mode else task)],
+            [CLAUDE_BIN, "-p", (wrap_for_voice(task) if voice_mode else task) + _get_design_context(task)],
             cwd=workspace,
             capture_output=True,
             text=True,
