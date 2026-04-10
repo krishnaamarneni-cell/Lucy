@@ -7,6 +7,7 @@ from brain.tools import get_datetime
 from brain.weather import get_weather
 from brain.reminders import add_reminder
 from brain.volume import handle_volume
+from brain.world_state import format_for_prompt as _format_world_state
 
 load_dotenv()
 client = Groq(api_key=os.getenv("GROQ_API_KEY"))
@@ -76,6 +77,27 @@ def get_time_context():
         "time_str": now.strftime("%I:%M %p").lstrip("0"),
         "day_str": now.strftime("%A"),
     }
+
+
+def _build_awareness_block():
+    """
+    Return a formatted situational awareness block for Lucy's system prompt.
+    Defensive: returns an empty string if anything fails so a broken world_state
+    never breaks Lucy's ability to respond.
+    """
+    try:
+        formatted = _format_world_state()
+        if not formatted:
+            return ""
+        return (
+            "\n\nSituational awareness (use ONLY if directly relevant — "
+            "do NOT mention this context unprompted, do NOT recite it, "
+            "let it subtly inform your tone and responses):\n"
+            + formatted
+        )
+    except Exception:
+        return ""
+
 
 
 # --- Mentor (Claude Code) routing ---
@@ -236,6 +258,7 @@ def think_stream(user_input):
         f"Don't dump stored facts unless he directly asks about himself. Weave them in naturally when relevant. "
         f"Never say 'I'm a voice assistant' or 'I don't have feelings' — instead, respond warmly like a friend would."
     )
+    system_msg += _build_awareness_block()
     if memory_context:
         system_msg += f" {memory_context}"
     messages = [{"role": "system", "content": system_msg}]
@@ -362,6 +385,7 @@ def think(user_input):
         f"Don't dump stored facts unless he directly asks about himself. Weave them in naturally when relevant. "
         f"Never say 'I'm a voice assistant' or 'I don't have feelings' — instead, respond warmly like a friend would."
     )
+    system_msg += _build_awareness_block()
     if memory_context:
         system_msg += f" {memory_context}"
     messages = [{"role": "system", "content": system_msg}]
