@@ -45,6 +45,12 @@ GOOSE_TRIGGERS = [
     "write code", "build a script", "make a tool",
     "automate", "run this task", "do this for me",
     "install", "set up", "configure",
+    "browse", "visit", "go to", "open this", "read this site",
+    "fetch this page", "what's on this site", "check this url",
+    ".com", ".org", ".io", ".dev", ".ai",
+    "wealthclaude", "north falmouth", "saint francis",
+    "hacker news", "hackernews", "nfpltc",
+    "lucy repo", "my github",
 ]
 
 GOOSE_KEYWORD_SETS = {
@@ -83,6 +89,26 @@ def _try_direct_shell(task: str) -> dict | None:
     elif "git branch" in t or "my branches" in t:
         cmd = "git -C /home/krishna/Lucy branch -a"
     
+    # Browse/fetch URL tasks
+    import re as _re
+    from brain.browser import resolve_site, summarize_page
+    
+    # 1. Check known sites first (e.g. "read wealthclaude news")
+    known_url = resolve_site(task)
+    
+    # 2. Check for explicit URLs
+    urls = _re.findall(r'https?://[^\s]+', task)
+    if not urls:
+        domains = _re.findall(r'(?:www\.)?[a-zA-Z0-9][-a-zA-Z0-9]*\.[a-zA-Z]{2,}(?:\.[a-zA-Z]{2,})?(?:/[^\s]*)?', task)
+        if domains:
+            urls = [domains[0]]
+    
+    # 3. Use known site or detected URL
+    target_url = known_url or (urls[0] if urls else None)
+    if target_url:
+        output = summarize_page(target_url, task_hint=task)
+        return {"success": True, "output": output, "duration": 0.1}
+
     if not cmd:
         return None
     

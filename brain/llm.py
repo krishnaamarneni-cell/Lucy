@@ -225,7 +225,7 @@ def _sentences_from_stream(token_iter):
         yield tail
 
 
-def think_stream(user_input):
+def think_stream(user_input, chat_mode=False):
     """
     Streaming version of think(). Yields sentences one at a time.
 
@@ -258,7 +258,7 @@ def think_stream(user_input):
         f"Keep greetings fresh: mix it up between 'hey', 'morning', 'yo', 'hi', 'good to see you back', or just a casual reaction. "
         f"Avoid repeating the exact same opener you used recently. "
         f"\n\nHard rules: "
-        f"Reply in 1-2 short sentences. Plain speech only — no markdown, no lists, no bullet points. "
+        f"{'Reply in detail with markdown formatting — use bullet points, bold, numbered lists, and headers when helpful. If the user asks for a list or top items, give ALL items requested.' if chat_mode else 'Reply in 1-2 short sentences. Plain speech only — no markdown, no lists, no bullet points.'} "
         f"Never invent facts, schedules, routines, appointments, places, or events. If you don't know something, say so plainly. "
         f"If Krishna's words sound garbled, cut off, or unclear, say 'sorry, didn't catch that — say it again?' instead of guessing. "
         f"When a tool result is provided (time, weather, volume), report it naturally but briefly — don't embellish or add fake context. "
@@ -392,7 +392,7 @@ def think_stream(user_input):
         save_memory(mem)
 
 
-def think(user_input):
+def think(user_input, chat_mode=False):
     mem = load_memory()
     memory_context = get_context(mem)
     tc = get_time_context()
@@ -415,7 +415,7 @@ def think(user_input):
         f"Keep greetings fresh: mix it up between 'hey', 'morning', 'yo', 'hi', 'good to see you back', or just a casual reaction. "
         f"Avoid repeating the exact same opener you used recently. "
         f"\n\nHard rules: "
-        f"Reply in 1-2 short sentences. Plain speech only — no markdown, no lists, no bullet points. "
+        f"{'Reply in detail with markdown formatting — use bullet points, bold, numbered lists, and headers when helpful. If the user asks for a list or top items, give ALL items requested.' if chat_mode else 'Reply in 1-2 short sentences. Plain speech only — no markdown, no lists, no bullet points.'} "
         f"Never invent facts, schedules, routines, appointments, places, or events. If you don't know something, say so plainly. "
         f"If Krishna's words sound garbled, cut off, or unclear, say 'sorry, didn't catch that — say it again?' instead of guessing. "
         f"When a tool result is provided (time, weather, volume), report it naturally but briefly — don't embellish or add fake context. "

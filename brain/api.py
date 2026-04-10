@@ -175,7 +175,7 @@ def chat(req: ChatRequest, authorization: str | None = Header(default=None)):
     from brain.llm import think
 
     try:
-        reply = think(req.message)
+        reply = think(req.message, chat_mode=True)
     except PermissionDeniedError as e:
         events.publish("action.denied", {"reason": str(e), "action": req.message})
         raise HTTPException(status_code=403, detail=str(e))
