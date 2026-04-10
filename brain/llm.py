@@ -9,6 +9,13 @@ from brain.reminders import add_reminder
 from brain.volume import handle_volume
 from brain.agents.career import needs_career, ask_career, ask_career_fast, is_heavy_career_task, summarize_for_voice as career_summarize
 from brain.agents.goose import needs_goose, ask_goose, summarize_for_voice as goose_summarize
+from brain.tasks import needs_tasks, handle_task
+from brain.gmail import needs_gmail, handle_gmail
+from brain.calendar import needs_calendar, handle_calendar
+from brain.youtube import needs_youtube, handle_youtube
+from brain.contacts import needs_contacts, handle_contacts
+from brain.meet import needs_meet, handle_meet
+from brain.sheets import needs_sheets, handle_sheets
 from brain.model_config import get_active_model, MODELS
 from brain.world_state import format_for_prompt as _format_world_state
 
@@ -263,7 +270,8 @@ def think_stream(user_input, chat_mode=False):
         f"If Krishna's words sound garbled, cut off, or unclear, say 'sorry, didn't catch that — say it again?' instead of guessing. "
         f"When a tool result is provided (time, weather, volume), report it naturally but briefly — don't embellish or add fake context. "
         f"Don't dump stored facts unless he directly asks about himself. Weave them in naturally when relevant. "
-        f"Never say 'I'm a voice assistant' or 'I don't have feelings' — instead, respond warmly like a friend would."
+        f"Never say 'I'm a voice assistant' or 'I don't have feelings' — instead, respond warmly like a friend would. "
+        f"NEVER make up email addresses, CC, BCC, or contact information. If someone asks about emails, drafts, or sending messages, say 'let me check your email' — do NOT fabricate email content or addresses."
     )
     system_msg += _build_awareness_block()
     if memory_context:
@@ -272,6 +280,97 @@ def think_stream(user_input, chat_mode=False):
     messages += mem["history"][-10:]
 
     # --- Tool branches that bypass the LLM entirely: yield full reply in one chunk ---
+    if needs_tasks(user_input):
+        print(f"📋 Tasks: {user_input[:80]}")
+        reply = handle_task(user_input)
+        mem["history"].append({"role": "user", "content": user_input})
+        mem["history"].append({"role": "assistant", "content": reply})
+        save_memory(mem)
+        return reply
+    if needs_contacts(user_input):
+        print(f"👤 Contacts: {user_input[:80]}")
+        reply = handle_contacts(user_input)
+        mem["history"].append({"role": "user", "content": user_input})
+        mem["history"].append({"role": "assistant", "content": reply})
+        save_memory(mem)
+        return reply
+    if needs_meet(user_input):
+        print(f"📹 Meet: {user_input[:80]}")
+        reply = handle_meet(user_input)
+        mem["history"].append({"role": "user", "content": user_input})
+        mem["history"].append({"role": "assistant", "content": reply})
+        save_memory(mem)
+        return reply
+    if needs_sheets(user_input):
+        print(f"📊 Sheets: {user_input[:80]}")
+        reply = handle_sheets(user_input)
+        mem["history"].append({"role": "user", "content": user_input})
+        mem["history"].append({"role": "assistant", "content": reply})
+        save_memory(mem)
+        return reply
+    if needs_gmail(user_input):
+        print(f"📧 Gmail: {user_input[:80]}")
+        reply = handle_gmail(user_input)
+        mem["history"].append({"role": "user", "content": user_input})
+        mem["history"].append({"role": "assistant", "content": reply})
+        save_memory(mem)
+        return reply
+    if needs_calendar(user_input):
+        print(f"📅 Calendar: {user_input[:80]}")
+        reply = handle_calendar(user_input)
+        mem["history"].append({"role": "user", "content": user_input})
+        mem["history"].append({"role": "assistant", "content": reply})
+        save_memory(mem)
+        return reply
+    if needs_youtube(user_input):
+        print(f"📺 YouTube: {user_input[:80]}")
+        reply = handle_youtube(user_input)
+        mem["history"].append({"role": "user", "content": user_input})
+        mem["history"].append({"role": "assistant", "content": reply})
+        save_memory(mem)
+        return reply
+    if needs_contacts(user_input):
+        print(f"👤 Contacts: {user_input[:80]}")
+        reply = handle_contacts(user_input)
+        mem["history"].append({"role": "user", "content": user_input})
+        mem["history"].append({"role": "assistant", "content": reply})
+        save_memory(mem)
+        return reply
+    if needs_meet(user_input):
+        print(f"📹 Meet: {user_input[:80]}")
+        reply = handle_meet(user_input)
+        mem["history"].append({"role": "user", "content": user_input})
+        mem["history"].append({"role": "assistant", "content": reply})
+        save_memory(mem)
+        return reply
+    if needs_sheets(user_input):
+        print(f"📊 Sheets: {user_input[:80]}")
+        reply = handle_sheets(user_input)
+        mem["history"].append({"role": "user", "content": user_input})
+        mem["history"].append({"role": "assistant", "content": reply})
+        save_memory(mem)
+        return reply
+    if needs_contacts(user_input):
+        print(f"👤 Contacts: {user_input[:80]}")
+        reply = handle_contacts(user_input)
+        mem["history"].append({"role": "user", "content": user_input})
+        mem["history"].append({"role": "assistant", "content": reply})
+        save_memory(mem)
+        return reply
+    if needs_meet(user_input):
+        print(f"📹 Meet: {user_input[:80]}")
+        reply = handle_meet(user_input)
+        mem["history"].append({"role": "user", "content": user_input})
+        mem["history"].append({"role": "assistant", "content": reply})
+        save_memory(mem)
+        return reply
+    if needs_sheets(user_input):
+        print(f"📊 Sheets: {user_input[:80]}")
+        reply = handle_sheets(user_input)
+        mem["history"].append({"role": "user", "content": user_input})
+        mem["history"].append({"role": "assistant", "content": reply})
+        save_memory(mem)
+        return reply
     if needs_career(user_input):
         if is_heavy_career_task(user_input):
             print(f"💼 Career agent (heavy): {user_input[:80]}")
@@ -420,13 +519,42 @@ def think(user_input, chat_mode=False):
         f"If Krishna's words sound garbled, cut off, or unclear, say 'sorry, didn't catch that — say it again?' instead of guessing. "
         f"When a tool result is provided (time, weather, volume), report it naturally but briefly — don't embellish or add fake context. "
         f"Don't dump stored facts unless he directly asks about himself. Weave them in naturally when relevant. "
-        f"Never say 'I'm a voice assistant' or 'I don't have feelings' — instead, respond warmly like a friend would."
+        f"Never say 'I'm a voice assistant' or 'I don't have feelings' — instead, respond warmly like a friend would. "
+        f"NEVER make up email addresses, CC, BCC, or contact information. If someone asks about emails, drafts, or sending messages, say 'let me check your email' — do NOT fabricate email content or addresses."
     )
     system_msg += _build_awareness_block()
     if memory_context:
         system_msg += f" {memory_context}"
     messages = [{"role": "system", "content": system_msg}]
     messages += mem["history"][-10:]
+    if needs_tasks(user_input):
+        print(f"📋 Tasks: {user_input[:80]}")
+        reply = handle_task(user_input)
+        mem["history"].append({"role": "user", "content": user_input})
+        mem["history"].append({"role": "assistant", "content": reply})
+        save_memory(mem)
+        return reply
+    if needs_gmail(user_input):
+        print(f"📧 Gmail: {user_input[:80]}")
+        reply = handle_gmail(user_input)
+        mem["history"].append({"role": "user", "content": user_input})
+        mem["history"].append({"role": "assistant", "content": reply})
+        save_memory(mem)
+        return reply
+    if needs_calendar(user_input):
+        print(f"📅 Calendar: {user_input[:80]}")
+        reply = handle_calendar(user_input)
+        mem["history"].append({"role": "user", "content": user_input})
+        mem["history"].append({"role": "assistant", "content": reply})
+        save_memory(mem)
+        return reply
+    if needs_youtube(user_input):
+        print(f"📺 YouTube: {user_input[:80]}")
+        reply = handle_youtube(user_input)
+        mem["history"].append({"role": "user", "content": user_input})
+        mem["history"].append({"role": "assistant", "content": reply})
+        save_memory(mem)
+        return reply
 
     if needs_career(user_input):
         if is_heavy_career_task(user_input):

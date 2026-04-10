@@ -1,0 +1,29 @@
+[
+  {
+    "id": 1,
+    "description": "update WealthClaude blog",
+    "priority": "medium",
+    "due": "",
+    "status": "completed",
+    "created": "2026-04-10 17:10",
+    "completed_at": "2026-04-10 17:13"
+  },
+  {
+    "id": 3,
+    "description": "call mom",
+    "priority": "medium",
+    "due": "tomorrow",
+    "status": "pending",
+    "created": "2026-04-10 17:12",
+    "completed_at": ""
+  },
+  {
+    "id": 4,
+    "description": "dlete task 2",
+    "priority": "medium",
+    "due": "",
+    "status": "pending",
+    "created": "2026-04-10 17:13",
+    "completed_at": ""
+  }
+]
