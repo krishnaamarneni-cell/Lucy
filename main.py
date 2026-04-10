@@ -3,8 +3,8 @@ import threading
 import voice.state as state
 from voice.wake import wait_for_wake_word
 from voice.stt import listen
-from voice.tts import speak
-from brain.llm import think
+from voice.tts import speak, speak_stream
+from brain.llm import think, think_stream
 from brain.reminders import start_watcher
 
 SLEEP_TIMEOUT = 30
@@ -53,9 +53,25 @@ def run():
                     speak("Okay, going to sleep. Bye!")
                     awake = False
                     break
-                reply = think(user_input)
-                print(f"🤖 Lucy: {reply}")
-                speak(reply)
+                # Streaming: Lucy speaks sentences as they're generated
+
+                print(f"🤖 Lucy:", end=" ", flush=True)
+
+                sentences = []
+
+                def _capture(gen):
+
+                    for s in gen:
+
+                        sentences.append(s)
+
+                        print(s, end=" ", flush=True)
+
+                        yield s
+
+                speak_stream(_capture(think_stream(user_input)))
+
+                print()  # newline after streaming complete
                 last_activity = time.time()
 
 if __name__ == "__main__":

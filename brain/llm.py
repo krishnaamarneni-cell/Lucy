@@ -136,6 +136,202 @@ def extract_mentor_task(text):
     return t or text
 
 
+
+# ---------------------------------------------------------------------------
+# Streaming support — yields sentences as Groq generates them.
+# Used by voice/tts.py's speak_stream() to eliminate dead air.
+# ---------------------------------------------------------------------------
+
+_SENTENCE_END = (".", "!", "?")
+# Common abbreviations that end with "." but aren't sentence ends
+_ABBREVIATIONS = {"mr", "mrs", "ms", "dr", "sr", "jr", "st", "vs", "etc", "e.g", "i.e"}
+
+
+def _is_sentence_complete(buffer: str) -> bool:
+    """Return True if buffer ends on a real sentence boundary (not an abbreviation)."""
+    stripped = buffer.rstrip()
+    if not stripped or stripped[-1] not in _SENTENCE_END:
+        return False
+    # Look at the word ending in the punctuation
+    tail = stripped.rsplit(" ", 1)[-1].rstrip(".!?").lower()
+    if tail in _ABBREVIATIONS:
+        return False
+    # Avoid firing on decimal numbers like "3.14" or version strings
+    if stripped[-1] == "." and len(stripped) >= 2 and stripped[-2].isdigit():
+        return False
+    return True
+
+
+def _sentences_from_stream(token_iter):
+    """
+    Consume a stream of token strings and yield complete sentences.
+    At end-of-stream, flush whatever is left in the buffer.
+    """
+    buffer = ""
+    for token in token_iter:
+        if not token:
+            continue
+        buffer += token
+        # Try to yield as many complete sentences as are buffered
+        while True:
+            # Find the earliest candidate sentence end
+            earliest = -1
+            for punct in _SENTENCE_END:
+                idx = buffer.find(punct)
+                if idx != -1 and (earliest == -1 or idx < earliest):
+                    earliest = idx
+            if earliest == -1:
+                break
+            candidate = buffer[: earliest + 1]
+            if _is_sentence_complete(candidate):
+                yield candidate.strip()
+                buffer = buffer[earliest + 1:].lstrip()
+            else:
+                # Not a real end — move past this punctuation to keep scanning
+                # by temporarily treating it as normal char
+                break
+    # End of stream: flush remainder
+    tail = buffer.strip()
+    if tail:
+        yield tail
+
+
+def think_stream(user_input):
+    """
+    Streaming version of think(). Yields sentences one at a time.
+
+    Tool branches (mentor, volume, reminder, fact) that return pre-built
+    replies yield the whole reply as a single chunk — they're already fast.
+
+    LLM branches (time, weather, search, normal chat) stream tokens from
+    Groq and yield each sentence as soon as it's complete. This is where
+    the latency win comes from.
+    """
+    mem = load_memory()
+    memory_context = get_context(mem)
+    tc = get_time_context()
+    system_msg = (
+        f"You are Lucy — warm, curious, down-to-earth. You talk with Krishna like a close friend who happens to live on his laptop. "
+        f"It is currently {tc['period']} ({tc['time_str']} on {tc['day_str']}). "
+        f"\n\nHow you talk: "
+        f"Casual, natural, like a real person — not a customer service bot. "
+        f"Most of the time, just answer directly without any greeting or opener. "
+        f"Vary how you start — sometimes jump straight into the answer, sometimes react first ('oh nice', 'hmm', 'wait really?', 'that's a good one'), sometimes ask back. "
+        f"Don't always react — silence and directness are also natural. "
+        f"Ask small friendly questions back when it genuinely fits, not every turn. "
+        f"\n\nName usage (important): "
+        f"Say 'Krishna' rarely — only when greeting him for the first time in a while, or when you want to emphasize something warm or personal. "
+        f"NEVER attach 'Krishna' to the end of responses as a sign-off. "
+        f"As a rule of thumb: if you said his name in your last reply, don't say it again in this one. "
+        f"\n\nGreetings: "
+        f"Only greet when it's actually a greeting moment — the very first message, or after a long pause. "
+        f"For follow-up questions, skip greetings entirely and just respond. "
+        f"Keep greetings fresh: mix it up between 'hey', 'morning', 'yo', 'hi', 'good to see you back', or just a casual reaction. "
+        f"Avoid repeating the exact same opener you used recently. "
+        f"\n\nHard rules: "
+        f"Reply in 1-2 short sentences. Plain speech only — no markdown, no lists, no bullet points. "
+        f"Never invent facts, schedules, routines, appointments, places, or events. If you don't know something, say so plainly. "
+        f"If Krishna's words sound garbled, cut off, or unclear, say 'sorry, didn't catch that — say it again?' instead of guessing. "
+        f"When a tool result is provided (time, weather, volume), report it naturally but briefly — don't embellish or add fake context. "
+        f"Don't dump stored facts unless he directly asks about himself. Weave them in naturally when relevant. "
+        f"Never say 'I'm a voice assistant' or 'I don't have feelings' — instead, respond warmly like a friend would."
+    )
+    if memory_context:
+        system_msg += f" {memory_context}"
+    messages = [{"role": "system", "content": system_msg}]
+    messages += mem["history"][-10:]
+
+    # --- Tool branches that bypass the LLM entirely: yield full reply in one chunk ---
+    if needs_mentor(user_input):
+        from brain.mentor import ask_mentor, summarize_for_voice
+        from brain.learning_journal import log_mentor_session
+        task = extract_mentor_task(user_input)
+        print(f"🎓 Asking mentor (Claude Code): {task[:80]}")
+        result = ask_mentor(task)
+        log_mentor_session(user_input, result, note="voice-triggered")
+        reply = summarize_for_voice(result)
+        mem["history"].append({"role": "user", "content": user_input})
+        mem["history"].append({"role": "assistant", "content": reply})
+        save_memory(mem)
+        yield reply
+        return
+
+    if needs_volume(user_input):
+        reply = handle_volume(user_input)
+        if reply:
+            mem["history"].append({"role": "user", "content": user_input})
+            mem["history"].append({"role": "assistant", "content": reply})
+            save_memory(mem)
+            yield reply
+            return
+
+    if needs_reminder(user_input):
+        reply = add_reminder(user_input)
+        mem["history"].append({"role": "user", "content": user_input})
+        mem["history"].append({"role": "assistant", "content": reply})
+        save_memory(mem)
+        yield reply
+        return
+
+    if needs_fact(user_input):
+        fact = extract_fact(user_input)
+        add_fact(mem, fact)
+        reply = f"Got it, I'll remember that {fact}."
+        mem["history"].append({"role": "user", "content": user_input})
+        mem["history"].append({"role": "assistant", "content": reply})
+        save_memory(mem)
+        yield reply
+        return
+
+    # --- LLM branches: build content and stream ---
+    if needs_time(user_input):
+        content = f"The current date and time is {get_datetime()}. User asked: {user_input}"
+    elif needs_weather(user_input):
+        from brain.weather import extract_city
+        city = extract_city(user_input)
+        print(f"🌤️ Fetching weather for {city}...")
+        data = get_weather(city)
+        content = f"Current weather in {city}: {data}. Answer conversationally in 1 sentence."
+    elif needs_search(user_input):
+        print("🔍 Searching...")
+        results = web_search(user_input)
+        content = f"Web results:\n{results}\nAnswer conversationally in 1-2 sentences."
+    else:
+        content = user_input
+
+    messages.append({"role": "user", "content": content})
+
+    # --- THE MAIN STREAMING CALL ---
+    stream = client.chat.completions.create(
+        model="llama-3.1-8b-instant",
+        messages=messages,
+        stream=True,
+    )
+
+    def _token_iter():
+        for chunk in stream:
+            delta = chunk.choices[0].delta.content or ""
+            if delta:
+                yield delta
+
+    full_reply_parts = []
+    for sentence in _sentences_from_stream(_token_iter()):
+        full_reply_parts.append(sentence)
+        yield sentence
+
+    # Persist the complete reply to memory after streaming finishes
+    full_reply = " ".join(full_reply_parts).strip()
+    if full_reply:
+        mem["history"].append({"role": "user", "content": user_input})
+        mem["history"].append({"role": "assistant", "content": full_reply})
+        if len(mem["history"]) > 40:
+            mem["history"] = mem["history"][-40:]
+        if "my name is" in user_input.lower():
+            name = user_input.lower().split("my name is")[-1].strip().split()[0].capitalize()
+            mem["user_name"] = name
+        save_memory(mem)
+
+
 def think(user_input):
     mem = load_memory()
     memory_context = get_context(mem)

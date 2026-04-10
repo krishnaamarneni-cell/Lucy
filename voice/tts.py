@@ -122,3 +122,62 @@ def speak(text):
         time.sleep(0.8)
         state.is_speaking = False
         state.stop_requested = False
+
+
+def speak_stream(sentence_iter):
+    """
+    Streaming version of speak(). Takes a generator that yields sentences
+    and speaks each one as soon as it arrives.
+
+    This is what kills dead air — Lucy starts speaking sentence 1 while
+    the LLM is still generating sentence 3.
+    """
+    global _current_proc
+    state.is_speaking = True
+    state.stop_requested = False
+
+    spoke_anything = False
+    try:
+        for sentence in sentence_iter:
+            if not sentence or not sentence.strip():
+                continue
+            if state.stop_requested:
+                print("🛑 Speech interrupted!")
+                break
+
+            # Split the streamed sentence further in case it contains multiple
+            # (the LLM sometimes yields "Sentence one. Sentence two." together)
+            for s in split_sentences(sentence):
+                if state.stop_requested:
+                    break
+                mp3_path = None
+                wav_path = None
+                try:
+                    with tempfile.NamedTemporaryFile(delete=False, suffix=".mp3") as f:
+                        mp3_path = f.name
+
+                    asyncio.run(_synthesize(s, mp3_path))
+                    wav_path = _convert_to_wav(mp3_path)
+
+                    proc = _play_wav_windows(wav_path)
+                    _current_proc = proc
+                    spoke_anything = True
+
+                    while proc.poll() is None:
+                        if state.stop_requested:
+                            _stop_current()
+                            break
+                        time.sleep(0.05)
+                    _current_proc = None
+                finally:
+                    for p in (mp3_path, wav_path):
+                        if p and os.path.exists(p):
+                            try:
+                                os.remove(p)
+                            except Exception:
+                                pass
+    finally:
+        if spoke_anything:
+            time.sleep(0.8)  # mic buffer
+        state.is_speaking = False
+        state.stop_requested = False
