@@ -920,6 +920,62 @@ def _get_time() -> str:
     now = datetime.now()
     return f"Current time: {now.strftime('%I:%M %p')} on {now.strftime('%A, %B %d, %Y')}"
 
+# --- SKILL WORKSHOP ---
+def _list_skills() -> str:
+    from brain.skill_workshop import list_available_skills
+    return list_available_skills()
+
+register("list_available_skills",
+    "Show skills Lucy can build herself from the catalog. Use for 'what skills can lucy learn', 'list skill workshop'.",
+    {"type": "object", "properties": {}},
+    _list_skills)
+
+
+def _build_skill(skill_name: str) -> str:
+    from brain.skill_workshop import build_skill
+    return build_skill(skill_name)
+
+register("build_skill",
+    "Ask Lucy to build a new skill via Claude Code mentor. Saves to _pending for review. Use for 'build skill X', 'learn X', 'create tool for X'.",
+    {
+        "type": "object",
+        "properties": {"skill_name": {"type": "string", "description": "Name from catalog like alpha_vantage, github_trending, etc."}},
+        "required": ["skill_name"],
+    },
+    _build_skill)
+
+
+def _approve_skill(skill_name: str) -> str:
+    from brain.skill_workshop import approve_skill
+    return approve_skill(skill_name)
+
+register("approve_skill",
+    "Approve a pending skill and activate it. Use after reviewing a built skill.",
+    {
+        "type": "object",
+        "properties": {"skill_name": {"type": "string"}},
+        "required": ["skill_name"],
+    },
+    _approve_skill)
+
+
+def _reject_skill(skill_name: str, reason: str = "") -> str:
+    from brain.skill_workshop import reject_skill
+    return reject_skill(skill_name, reason)
+
+register("reject_skill",
+    "Reject a pending skill and move to rejected folder.",
+    {
+        "type": "object",
+        "properties": {
+            "skill_name": {"type": "string"},
+            "reason": {"type": "string"},
+        },
+        "required": ["skill_name"],
+    },
+    _reject_skill)
+
+
 register("get_time",
     "Get the current time and date. Use when user asks 'what time is it', 'what's today's date', 'what day is it'.",
     {"type": "object", "properties": {}},
@@ -974,3 +1030,46 @@ def execute_tool(name: str, args) -> str:
 
 def list_tools() -> list:
     return [t["function"]["name"] for t in TOOLS]
+
+
+
+# ============================================================================
+# AUTO-LOAD APPROVED SKILLS from brain/skills/_approved/
+# ============================================================================
+
+def _load_approved_skills():
+    """Load all approved Lucy-built skills from brain/skills/_approved/."""
+    import importlib.util
+    from pathlib import Path as _P
+    
+    approved_dir = _P.home() / "Lucy" / "brain" / "skills" / "_approved"
+    if not approved_dir.exists():
+        return
+    
+    loaded = []
+    for skill_file in approved_dir.glob("*.py"):
+        if skill_file.name.startswith("test_") or skill_file.name.startswith("_"):
+            continue
+        try:
+            spec = importlib.util.spec_from_file_location(skill_file.stem, str(skill_file))
+            mod = importlib.util.module_from_spec(spec)
+            spec.loader.exec_module(mod)
+            
+            if hasattr(mod, "TOOL_META"):
+                meta = mod.TOOL_META
+                register(
+                    meta["name"],
+                    meta["description"],
+                    meta["parameters"],
+                    meta["function"],
+                )
+                loaded.append(meta["name"])
+        except Exception as e:
+            print(f"Failed to load skill {skill_file.name}: {e}")
+    
+    if loaded:
+        print(f"✨ Auto-loaded {len(loaded)} Lucy-built skills: {', '.join(loaded)}")
+
+
+# Run the auto-loader when this module is imported
+_load_approved_skills()

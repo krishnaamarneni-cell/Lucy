@@ -87,6 +87,15 @@ def generate_briefing() -> str:
     except Exception:
         pass
 
+    # 4b. New SAP Jobs (daily digest)
+    try:
+        from brain.jobs import find_matching_jobs
+        jobs = find_matching_jobs(min_score=75, max_jobs=8)
+        if jobs and "No jobs found" not in jobs and "Scanned 0" not in jobs and "None matched" not in jobs:
+            sections.append(f"🎯 **New SAP Jobs:**\n{jobs[:1500]}\n")
+    except Exception:
+        pass
+
     # 5. Market summary — top stocks
     try:
         from brain.search import web_search

@@ -182,6 +182,10 @@ def search_sap_jobs(query: str = None, max_results: int = 10) -> list:
                         "source": "tavily",
                     })
     
+    # Merge in Jobicy results (structured, no scraping needed)
+    jobicy_jobs = _search_jobicy(query="sap", max_results=8)
+    all_jobs.extend(jobicy_jobs)
+    
     # Dedupe by URL
     seen_urls = set()
     unique = []
@@ -206,6 +210,43 @@ def _fetch_job_content(url: str, fallback: str = "") -> str:
     except Exception as e:
         print(f"   fetch fail {url[:60]}: {e}")
     return fallback
+
+
+
+
+def _search_jobicy(query: str = "sap", max_results: int = 10) -> list:
+    """Fetch SAP jobs from Jobicy API (free, no auth)."""
+    import requests as _req
+    
+    try:
+        r = _req.get(
+            f"https://jobicy.com/api/v2/remote-jobs",
+            params={"count": max_results, "tag": query},
+            timeout=15,
+            headers={"User-Agent": "Lucy/1.0"},
+        )
+        data = r.json()
+        jobs = []
+        for j in data.get("jobs", []):
+            # Strip HTML from description
+            import re as _re
+            desc = j.get("jobDescription", "") or j.get("jobExcerpt", "")
+            desc = _re.sub(r'<[^>]+>', ' ', desc)
+            desc = _re.sub(r'\s+', ' ', desc).strip()
+            
+            jobs.append({
+                "title": j.get("jobTitle", "Unknown")[:150],
+                "url": j.get("url", ""),
+                "snippet": desc[:2000],
+                "source": "jobicy",
+                "company": j.get("companyName", ""),
+                "location": j.get("jobGeo", "Remote"),
+                "level": j.get("jobLevel", ""),
+            })
+        return jobs
+    except Exception as e:
+        print(f"Jobicy API failed: {e}")
+        return []
 
 
 def find_matching_jobs(min_score: int = 75, max_jobs: int = 10) -> str:
