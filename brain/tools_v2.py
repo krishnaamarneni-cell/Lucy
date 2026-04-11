@@ -645,6 +645,42 @@ register("delete_project",
     _delete_project)
 
 
+# --- JOB SEARCH ---
+def _score_job(job_description: str, job_title: str = "", company: str = "") -> str:
+    from brain.jobs import score_job, format_score
+    result = score_job(job_description, job_title, company)
+    return format_score(result)
+
+def _find_sap_jobs(min_score: int = 75, max_jobs: int = 10) -> str:
+    from brain.jobs import find_matching_jobs
+    return find_matching_jobs(min_score=min_score, max_jobs=max_jobs)
+
+register("find_sap_jobs",
+    "Scan SAP job boards (Dice, Indeed, LinkedIn) for new contract roles, score each against Krishna's CV, return matches above threshold. Use for 'find new SAP jobs', 'check job boards', 'what SAP contracts are available'.",
+    {
+        "type": "object",
+        "properties": {
+            "min_score": {"type": "integer", "description": "Minimum match % to include (default 75)"},
+            "max_jobs": {"type": "integer", "description": "Max jobs to scan (default 10)"},
+        },
+    },
+    _find_sap_jobs)
+
+
+register("score_job",
+    "Score a SAP job description against Krishna's CV 0-100%. Returns match percent, fit reasons, concerns, and tailoring advice. Use when user pastes a job description and asks 'is this a fit', 'score this job', 'evaluate this role'.",
+    {
+        "type": "object",
+        "properties": {
+            "job_description": {"type": "string", "description": "Full job description text"},
+            "job_title": {"type": "string", "description": "Job title if known"},
+            "company": {"type": "string", "description": "Company name if known"},
+        },
+        "required": ["job_description"],
+    },
+    _score_job)
+
+
 # --- TIME & DATE ---
 def _get_time() -> str:
     from datetime import datetime

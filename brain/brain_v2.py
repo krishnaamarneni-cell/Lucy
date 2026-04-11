@@ -71,14 +71,25 @@ def think_v2(user_input: str, chat_mode: bool = True) -> str:
 
     tools_schema = get_tool_schemas()
 
-    # Round 1: Let Groq decide and call tools
-    response = _client.chat.completions.create(
-        model="llama-3.3-70b-versatile",
-        messages=messages,
-        tools=tools_schema,
-        tool_choice="auto",
-        temperature=0.2,
-    )
+    # Round 1: Let Groq decide and call tools (with retry on tool_use_failed)
+    try:
+        response = _client.chat.completions.create(
+            model="llama-3.3-70b-versatile",
+            messages=messages,
+            tools=tools_schema,
+            tool_choice="auto",
+            temperature=0.2,
+        )
+    except Exception as e:
+        # Groq sometimes malforms tool calls — retry without tools as fallback
+        if "tool_use_failed" in str(e) or "400" in str(e):
+            response = _client.chat.completions.create(
+                model="llama-3.3-70b-versatile",
+                messages=messages,
+                temperature=0.2,
+            )
+        else:
+            raise
 
     msg = response.choices[0].message
     final_text = ""
@@ -115,8 +126,12 @@ def think_v2(user_input: str, chat_mode: bool = True) -> str:
                 "role": "system",
                 "content": (
                     "You just ran these tools and got these results. "
-                    "Use them to answer the user directly. "
-                    "DO NOT fabricate data. Quote the tool results exactly.\n\n"
+                    "CRITICAL: Quote tool results EXACTLY. "
+                    "If a tool returned '0 results', 'no matches', 'None found', or empty — "
+                    "say EXACTLY that to the user. "
+                    "DO NOT invent URLs, job listings, emails, meetings, or any other data. "
+                    "If the tool says 'Scanned 0 new jobs', your response must say 'Scanned 0 new jobs' — "
+                    "not fabricate 5 fake jobs from Accenture/Deloitte/etc.\n\n"
                     + tool_context
                 ),
             },
