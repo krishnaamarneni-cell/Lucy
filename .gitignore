@@ -33,3 +33,9 @@ memory/reminders.json
 memory/learning_journal.jsonl
 .api_token
 dashboard/.env.local
+
+# Mentor workspace (Claude Code builds)
+mentor_workspace/
+career-ops/tailored/
+brain/skills/_pending/
+brain/skills/_rejected/
