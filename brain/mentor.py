@@ -118,9 +118,43 @@ def ask_mentor(task: str, workspace: str = None, timeout: int = 300, voice_mode:
     """
     if workspace is None:
         import uuid
+        import re as _re
         persistent_dir = Path.home() / "Lucy" / "mentor_workspace"
         persistent_dir.mkdir(exist_ok=True)
-        workspace_name = f"task-{uuid.uuid4().hex[:8]}"
+        
+        # Try to extract a meaningful name from the task
+        def _extract_name(text):
+            t = text.lower()
+            # Patterns: "for X", "called X", "named X", "build X"
+            patterns = [
+                # "for X with/using/..." OR "for X" at end of string
+                r'(?:for |called |named )([a-z][\w\s-]{2,40}?)(?:\s+(?:with|using|that|which|and|to|from|in)\b|[.,-]|$)',
+                # "build/create a X landing page/site"
+                r'(?:build |create |make )(?:a |an )?([a-z][\w\s-]{2,40}?)\s+(?:landing|site|website|page|app)',
+            ]
+            for pat in patterns:
+                m = _re.search(pat, t)
+                if m:
+                    name = m.group(1).strip()
+                    # Clean up
+                    name = _re.sub(r'[^\w\s-]', '', name)
+                    name = _re.sub(r'\s+', '-', name).strip('-').lower()
+                    if 3 <= len(name) <= 40:
+                        return name
+            return None
+        
+        extracted = _extract_name(task)
+        if extracted:
+            # Make unique if exists
+            base = extracted
+            counter = 1
+            while (persistent_dir / base).exists():
+                base = f"{extracted}-{counter}"
+                counter += 1
+            workspace_name = base
+        else:
+            workspace_name = f"task-{uuid.uuid4().hex[:8]}"
+        
         workspace = str(persistent_dir / workspace_name)
         Path(workspace).mkdir(exist_ok=True)
     else:

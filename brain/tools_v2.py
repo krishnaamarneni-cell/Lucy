@@ -323,7 +323,7 @@ def _mentor_build(task: str) -> str:
     return str(result)
 
 register("mentor_build",
-    "Use Claude Code to BUILD real code files — HTML, Python, React, websites. Writes actual files to ~/Lucy/mentor_workspace/. Use for 'build a landing page', 'create a website', 'write a script'.",
+    "Build ONLY — write code files to disk without deploying. Use ONLY when user explicitly says 'just build' or does not mention deploy/live/github/vercel. If user says 'build and deploy' or 'build and ship' or 'go live', use build_and_deploy instead.",
     {
         "type": "object",
         "properties": {
@@ -394,6 +394,257 @@ register("morning_briefing",
     _briefing)
 
 
+# --- BUILD & DEPLOY (one-shot) ---
+def _build_and_deploy(task: str, auto_open: bool = True) -> str:
+    """Build a project via mentor, then deploy to GitHub + Vercel."""
+    from brain.mentor import ask_mentor
+    from brain.deployer import handle_deployer, find_latest_project
+    import subprocess
+    
+    output = ["# 🏗️ Build + Deploy Pipeline\n"]
+    
+    # Step 1: Build with mentor
+    output.append("## Step 1: Building with Claude Code mentor...")
+    build_result = ask_mentor(task)
+    if isinstance(build_result, dict):
+        build_text = build_result.get("output", "")
+        workspace = build_result.get("workspace", "")
+        if not build_result.get("success"):
+            return "\n".join(output) + f"\n❌ Build failed: {build_result.get('error', 'unknown')}"
+    else:
+        return "\n".join(output) + "\n❌ Build returned unexpected format"
+    
+    output.append(f"✅ Built at: `{workspace}`")
+    output.append(f"{build_text[:400]}...\n" if len(build_text) > 400 else f"{build_text}\n")
+    
+    # Verify files exist
+    project = find_latest_project()
+    if not project:
+        return "\n".join(output) + "\n❌ No files found in workspace"
+    
+    output.append(f"📁 Files: " + ", ".join(f.name for f in project.iterdir() if f.is_file())[:200])
+    
+    # Auto-open in browser
+    if auto_open:
+        html_files = list(project.glob("*.html"))
+        if html_files:
+            try:
+                subprocess.run(["wslview", str(html_files[0])], timeout=3)
+                output.append(f"👁️ Opened `{html_files[0].name}` in browser")
+            except Exception:
+                pass
+    
+    # Step 2: Deploy
+    output.append("\n## Step 2: Deploying to GitHub + Vercel...")
+    deploy_result = handle_deployer("deploy the latest project to both")
+    output.append(deploy_result)
+    
+    return "\n".join(output)
+
+register("build_and_deploy",
+    "ONE-SHOT BUILD + DEPLOY. MUST use this when user says ANY of: 'build and deploy', 'build and ship', 'deploy to vercel', 'go live', 'make it live', 'push to github and vercel'. Chains mentor_build → deploy_project → returns live URL. ALWAYS prefer this over mentor_build when deploy is mentioned.",
+    {
+        "type": "object",
+        "properties": {
+            "task": {"type": "string", "description": "Full description of what to build (e.g. 'landing page for WealthClaude Pro with hero features pricing using Tailwind')"},
+            "auto_open": {"type": "boolean", "description": "Open in browser after build (default true)"},
+        },
+        "required": ["task"],
+    },
+    _build_and_deploy)
+
+
+# --- PROJECT MANAGEMENT (update, delete, list) ---
+def _list_projects() -> str:
+    """List all projects in mentor_workspace."""
+    from pathlib import Path as P
+    workspace = P.home() / "Lucy" / "mentor_workspace"
+    if not workspace.exists():
+        return "No projects found."
+    
+    projects = []
+    for d in sorted(workspace.iterdir(), key=lambda x: x.stat().st_mtime, reverse=True):
+        if d.is_dir():
+            files = [f.name for f in d.iterdir() if f.is_file()]
+            if files:
+                html = [f for f in files if f.endswith(".html")]
+                projects.append({
+                    "name": d.name,
+                    "files": len(files),
+                    "has_html": len(html) > 0,
+                    "path": str(d),
+                })
+    
+    if not projects:
+        return "No projects with files found."
+    
+    lines = [f"**Projects in mentor_workspace ({len(projects)} total):**\n"]
+    for i, p in enumerate(projects[:15], 1):
+        icon = "🌐" if p["has_html"] else "📁"
+        lines.append(f"{i}. {icon} **{p['name']}** — {p['files']} file(s)")
+    return "\n".join(lines)
+
+register("list_projects",
+    "List all projects Lucy has built in mentor_workspace. Use for 'show my projects', 'list projects', 'what have I built'.",
+    {"type": "object", "properties": {}},
+    _list_projects)
+
+
+def _update_project(project_name: str, changes: str, redeploy: bool = True) -> str:
+    """Modify an existing project via mentor and optionally redeploy."""
+    from brain.mentor import ask_mentor
+    from brain.deployer import handle_deployer
+    from pathlib import Path as P
+    import subprocess
+    
+    workspace = P.home() / "Lucy" / "mentor_workspace"
+    
+    # Find project (exact or fuzzy match)
+    project = workspace / project_name
+    if not project.exists():
+        for d in workspace.iterdir():
+            if d.is_dir() and project_name.lower() in d.name.lower():
+                project = d
+                break
+    
+    if not project.exists():
+        return f"Project '{project_name}' not found. Use list_projects to see available ones."
+    
+    # Read current index.html if exists
+    html_file = project / "index.html"
+    current_content = ""
+    if html_file.exists():
+        current_content = html_file.read_text()[:3000]
+    
+    output = [f"# 🔧 Updating: {project.name}\n"]
+    
+    # Ask mentor to update the file
+    task = (
+        f"The project is at {project}. "
+        f"Current index.html content (first 3000 chars):\n\n```html\n{current_content}\n```\n\n"
+        f"Apply these changes to index.html: {changes}\n\n"
+        f"Use the Edit or Write tool to modify the file in place. "
+        f"Keep the existing structure and only change what's requested."
+    )
+    
+    build_result = ask_mentor(task)
+    if isinstance(build_result, dict):
+        if build_result.get("success"):
+            output.append(f"✅ Mentor updated the file")
+            output.append(f"{build_result.get('output', '')[:300]}")
+        else:
+            return "\n".join(output) + f"\n❌ Update failed"
+    
+    # Auto-open updated file
+    if html_file.exists():
+        try:
+            subprocess.run(["wslview", str(html_file)], timeout=3)
+            output.append("👁️ Opened updated file in browser")
+        except Exception:
+            pass
+    
+    # Redeploy if requested
+    if redeploy:
+        output.append("\n## Redeploying...")
+        deploy_result = handle_deployer(f"deploy project {project.name} to both")
+        output.append(deploy_result)
+    
+    return "\n".join(output)
+
+register("update_project",
+    "Modify an existing project with changes and optionally redeploy. Use for 'update the X project', 'change the hero text to Y', 'add a contact section to Z'.",
+    {
+        "type": "object",
+        "properties": {
+            "project_name": {"type": "string", "description": "Project folder name (e.g. task-e14acc86) or keyword"},
+            "changes": {"type": "string", "description": "What changes to apply"},
+            "redeploy": {"type": "boolean", "description": "Redeploy after update (default true)"},
+        },
+        "required": ["project_name", "changes"],
+    },
+    _update_project)
+
+
+def _delete_project(project_name: str, delete_github: bool = True, delete_vercel: bool = True) -> str:
+    """Delete a local project and optionally its GitHub repo and Vercel deployment."""
+    from pathlib import Path as P
+    import subprocess
+    import shutil
+    import os
+    
+    workspace = P.home() / "Lucy" / "mentor_workspace"
+    
+    # Find project
+    project = workspace / project_name
+    if not project.exists():
+        for d in workspace.iterdir():
+            if d.is_dir() and project_name.lower() in d.name.lower():
+                project = d
+                break
+    
+    if not project.exists():
+        return f"Project '{project_name}' not found."
+    
+    output = [f"# 🗑️ Deleting: {project.name}\n"]
+    
+    env = {**os.environ}
+    env["PATH"] = f"{P.home()}/.nvm/versions/node/v20.20.2/bin:{P.home()}/.local/bin:" + env.get("PATH", "")
+    
+    repo_name = project.name.replace("task-", "lucy-site-")
+    
+    # Delete GitHub repo
+    if delete_github:
+        try:
+            result = subprocess.run(
+                f"gh repo delete {repo_name} --yes",
+                shell=True, capture_output=True, text=True, timeout=30, env=env,
+            )
+            if result.returncode == 0:
+                output.append(f"✅ Deleted GitHub repo: {repo_name}")
+            else:
+                output.append(f"⚠️ GitHub: {result.stderr[:150]}")
+        except Exception as e:
+            output.append(f"⚠️ GitHub delete failed: {e}")
+    
+    # Delete Vercel deployment
+    if delete_vercel:
+        try:
+            # Try to remove via vercel CLI
+            result = subprocess.run(
+                f"{P.home()}/.nvm/versions/node/v20.20.2/bin/vercel remove {project.name} --yes",
+                shell=True, capture_output=True, text=True, timeout=30,
+                cwd=str(project), env=env,
+            )
+            if result.returncode == 0:
+                output.append(f"✅ Removed from Vercel")
+            else:
+                output.append(f"⚠️ Vercel: {result.stderr[:150] or 'may not exist'}")
+        except Exception as e:
+            output.append(f"⚠️ Vercel remove failed: {e}")
+    
+    # Delete local folder
+    try:
+        shutil.rmtree(project)
+        output.append(f"✅ Deleted local folder: {project}")
+    except Exception as e:
+        output.append(f"❌ Local delete failed: {e}")
+    
+    return "\n".join(output)
+
+register("delete_project",
+    "Delete a project locally AND remove it from GitHub and Vercel. Destructive — only use when user explicitly says 'delete' or 'remove'.",
+    {
+        "type": "object",
+        "properties": {
+            "project_name": {"type": "string"},
+            "delete_github": {"type": "boolean", "description": "Also delete GitHub repo (default true)"},
+            "delete_vercel": {"type": "boolean", "description": "Also delete Vercel deployment (default true)"},
+        },
+        "required": ["project_name"],
+    },
+    _delete_project)
+
+
 # --- TIME & DATE ---
 def _get_time() -> str:
     from datetime import datetime
@@ -439,6 +690,10 @@ def execute_tool(name: str, args) -> str:
         args = {}
     if not isinstance(args, dict):
         args = {}
+    # Coerce string booleans to real booleans (Groq sometimes sends "true"/"false")
+    for k, v in list(args.items()):
+        if isinstance(v, str) and v.lower() in ("true", "false"):
+            args[k] = v.lower() == "true"
     for tool in TOOLS:
         if tool["function"]["name"] == name:
             try:
