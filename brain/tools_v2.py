@@ -667,6 +667,239 @@ register("find_sap_jobs",
     _find_sap_jobs)
 
 
+def _find_recruiters(domain: str = "", company: str = "", job_url: str = "", job_title: str = "") -> str:
+    from brain.jobs import find_recruiters_for_company, format_recruiters, _extract_domain_from_job
+    if not domain and (job_url or job_title):
+        domain = _extract_domain_from_job(job_url, job_title)
+    if not domain and company:
+        domain = company.lower().replace(" ", "") + ".com"
+    if not domain:
+        return "I need a company domain to find recruiters. Example: 'find recruiters at pfizer.com'"
+    result = find_recruiters_for_company(domain, company)
+    return format_recruiters(result)
+
+def _draft_application(
+    recruiter_email: str,
+    recruiter_name: str = "",
+    company: str = "",
+    job_title: str = "",
+    job_description: str = "",
+    job_url: str = "",
+) -> str:
+    from brain.jobs import draft_application_email, save_to_gmail_drafts
+    draft = draft_application_email(
+        recruiter_email=recruiter_email,
+        recruiter_name=recruiter_name,
+        company=company,
+        job_title=job_title,
+        job_description=job_description,
+        job_url=job_url,
+    )
+    return save_to_gmail_drafts(draft)
+
+def _tailor_resume(job_title: str, company: str, job_description: str) -> str:
+    from brain.jobs import tailor_resume
+    result = tailor_resume(job_title, company, job_description)
+    if "error" in result:
+        return f"❌ {result['error']}"
+    return f"✅ Tailored resume created\n\n**PDF:** `{result['pdf_path']}`\n**Markdown:** `{result['md_path']}`\n\n### Preview\n{result['preview']}..."
+
+register("tailor_resume",
+    "Generate a custom resume tailored to a specific job — reorders bullets and rewrites summary to emphasize matching keywords. Saves markdown + PDF to ~/career-ops/tailored/. Use before drafting an application email.",
+    {
+        "type": "object",
+        "properties": {
+            "job_title": {"type": "string"},
+            "company": {"type": "string"},
+            "job_description": {"type": "string"},
+        },
+        "required": ["job_title", "company", "job_description"],
+    },
+    _tailor_resume)
+
+
+def _apply_to_job(
+    job_title: str,
+    company: str,
+    job_description: str,
+    recruiter_email: str,
+    recruiter_name: str = "",
+    job_url: str = "",
+) -> str:
+    """Full pipeline: tailor resume -> draft email -> attach tailored PDF -> save to Gmail drafts + log to tracker."""
+    from brain.jobs import tailor_resume, draft_application_email, save_to_gmail_drafts, log_application
+    
+    # Step 1: Tailor the resume
+    tailor = tailor_resume(job_title, company, job_description)
+    if "error" in tailor:
+        return f"❌ Tailoring failed: {tailor['error']}"
+    
+    # Step 2: Draft the email
+    draft = draft_application_email(
+        recruiter_email=recruiter_email,
+        recruiter_name=recruiter_name,
+        company=company,
+        job_title=job_title,
+        job_description=job_description,
+        job_url=job_url,
+    )
+    
+    # Step 3: Save with tailored attachment
+    result = save_to_gmail_drafts(draft, custom_attachment=tailor["pdf_path"])
+    
+    # Step 4: Log to tracker sheet
+    log_result = log_application(
+        company=company,
+        job_title=job_title,
+        recruiter_name=recruiter_name,
+        recruiter_email=recruiter_email,
+        status="draft",
+        resume_file=tailor["pdf_path"],
+        job_url=job_url,
+    )
+    
+    return f"# ✅ Application prepared for {company}\n\n{result}\n\n{log_result}"
+
+def _list_applications() -> str:
+    from brain.jobs import list_applications
+    return list_applications()
+
+def _add_recruiter(name: str, company: str, email: str, role: str = "", source: str = "manual", priority: str = "medium", notes: str = "") -> str:
+    from brain.jobs import add_recruiter
+    return add_recruiter(name, company, email, role, source, priority, notes)
+
+register("add_recruiter",
+    "Add a recruiter to Lucy's persistent database. Use for 'add recruiter X at company Y with email Z'.",
+    {
+        "type": "object",
+        "properties": {
+            "name": {"type": "string"},
+            "company": {"type": "string"},
+            "email": {"type": "string"},
+            "role": {"type": "string"},
+            "priority": {"type": "string", "enum": ["high", "medium", "low"]},
+            "notes": {"type": "string"},
+        },
+        "required": ["name", "company", "email"],
+    },
+    _add_recruiter)
+
+
+def _import_recruiters(domain: str, company: str = "") -> str:
+    from brain.jobs import import_recruiters_from_hunter
+    return import_recruiters_from_hunter(domain, company)
+
+register("import_recruiters",
+    "Find recruiters at a company via Hunter.io and add them all to Lucy's recruiters database. Use for 'import recruiters from pfizer.com'.",
+    {
+        "type": "object",
+        "properties": {
+            "domain": {"type": "string"},
+            "company": {"type": "string"},
+        },
+        "required": ["domain"],
+    },
+    _import_recruiters)
+
+
+def _list_recruiters(status: str = "all", limit: int = 20) -> str:
+    from brain.jobs import list_recruiters
+    return list_recruiters(status, limit)
+
+register("list_recruiters",
+    "Show recruiters from Lucy's database. Filter by status: all, new, drafted, contacted, replied.",
+    {
+        "type": "object",
+        "properties": {
+            "status": {"type": "string", "enum": ["all", "new", "drafted", "contacted", "replied"]},
+            "limit": {"type": "integer"},
+        },
+    },
+    _list_recruiters)
+
+
+def _batch_draft(job_title: str, job_description: str, daily_limit: int = 50) -> str:
+    from brain.jobs import batch_draft_applications
+    return batch_draft_applications(job_title, job_description, daily_limit)
+
+def _sync_sent_emails() -> str:
+    from brain.jobs import sync_sent_emails_to_recruiters
+    return sync_sent_emails_to_recruiters()
+
+register("sync_sent_emails",
+    "Scan Gmail Sent folder for emails to recruiters in the database and auto-update their status to 'contacted'. Run this daily or after sending batch drafts manually.",
+    {"type": "object", "properties": {}},
+    _sync_sent_emails)
+
+
+register("batch_draft_applications",
+    "Create personalized drafts for all NEW recruiters in database for a specific job. Respects daily_limit (default 50/day to stay under Gmail thresholds). Each draft has a tailored resume attached. Marks recruiters as 'drafted' after processing.",
+    {
+        "type": "object",
+        "properties": {
+            "job_title": {"type": "string"},
+            "job_description": {"type": "string"},
+            "daily_limit": {"type": "integer", "description": "Max drafts per run (default 50)"},
+        },
+        "required": ["job_title", "job_description"],
+    },
+    _batch_draft)
+
+
+register("list_applications",
+    "Show all job applications Lucy has logged to the tracker sheet. Use for 'show my applications', 'what jobs have I applied to', 'open my tracker'.",
+    {"type": "object", "properties": {}},
+    _list_applications)
+
+
+register("apply_to_job",
+    "FULL PIPELINE: tailor resume + draft personalized email + attach tailored PDF + save to Gmail drafts. Use when user says 'apply to X', 'send my resume to X for this job'.",
+    {
+        "type": "object",
+        "properties": {
+            "job_title": {"type": "string"},
+            "company": {"type": "string"},
+            "job_description": {"type": "string"},
+            "recruiter_email": {"type": "string"},
+            "recruiter_name": {"type": "string"},
+            "job_url": {"type": "string"},
+        },
+        "required": ["job_title", "company", "job_description", "recruiter_email"],
+    },
+    _apply_to_job)
+
+
+register("draft_application",
+    "Draft a personalized job application email using Krishna's CV and job details, save to Gmail drafts. Use after find_recruiters when user says 'draft an application to X' or 'write a cover email for this job'.",
+    {
+        "type": "object",
+        "properties": {
+            "recruiter_email": {"type": "string", "description": "Recruiter email address"},
+            "recruiter_name": {"type": "string", "description": "Recruiter full name"},
+            "company": {"type": "string", "description": "Company name"},
+            "job_title": {"type": "string", "description": "Job title"},
+            "job_description": {"type": "string", "description": "Job description text"},
+            "job_url": {"type": "string", "description": "Job posting URL"},
+        },
+        "required": ["recruiter_email"],
+    },
+    _draft_application)
+
+
+register("find_recruiters",
+    "Find verified recruiter emails at a company using Hunter.io. Use after find_sap_jobs when user wants to contact someone about a specific job, or directly when user asks 'find recruiters at X'.",
+    {
+        "type": "object",
+        "properties": {
+            "domain": {"type": "string", "description": "Company domain like 'pfizer.com'"},
+            "company": {"type": "string", "description": "Company name"},
+            "job_url": {"type": "string", "description": "Job URL if coming from find_sap_jobs"},
+            "job_title": {"type": "string", "description": "Job title for company extraction"},
+        },
+    },
+    _find_recruiters)
+
+
 register("score_job",
     "Score a SAP job description against Krishna's CV 0-100%. Returns match percent, fit reasons, concerns, and tailoring advice. Use when user pastes a job description and asks 'is this a fit', 'score this job', 'evaluate this role'.",
     {

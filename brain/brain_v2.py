@@ -106,6 +106,15 @@ def think_v2(user_input: str, chat_mode: bool = True) -> str:
 
             print(f"🔧 Tool: {tool_name}({args})")
             result = execute_tool(tool_name, args)
+            # Detect Groq hallucinating non-existent tools
+            if result.startswith("Unknown tool:"):
+                valid_names = [t["function"]["name"] for t in tools_schema]
+                result = (
+                    f"ERROR: '{tool_name}' is not a real tool. "
+                    f"Valid tools include: {', '.join(valid_names[:15])}... "
+                    f"The user asked for batch drafting — use 'batch_draft_applications' instead. "
+                    f"Tell the user honestly that you tried to use a non-existent tool and could not complete the action."
+                )
             print(f"   ↳ Returned {len(result)} chars: {result[:120]}...")
 
             if len(result) > 4000:

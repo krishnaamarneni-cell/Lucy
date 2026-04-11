@@ -279,3 +279,58 @@ def handle_gmail(text: str) -> str:
 
     # Default
     return list_emails(max_results=5)
+
+
+def draft_email_with_attachment(to: str, subject: str, body: str, attachment_path: str = "") -> str:
+    """Create a Gmail draft with an optional file attachment."""
+    import base64
+    import mimetypes
+    from email.mime.multipart import MIMEMultipart
+    from email.mime.text import MIMEText
+    from email.mime.base import MIMEBase
+    from email import encoders
+    from pathlib import Path as _P
+    
+    try:
+        service = get_gmail_service()
+        
+        message = MIMEMultipart()
+        message["to"] = to
+        message["subject"] = subject
+        message.attach(MIMEText(body, "plain"))
+        
+        attached_name = ""
+        if attachment_path:
+            fpath = _P(attachment_path).expanduser()
+            if fpath.exists():
+                ctype, encoding = mimetypes.guess_type(str(fpath))
+                if ctype is None or encoding is not None:
+                    ctype = "application/octet-stream"
+                main_type, sub_type = ctype.split("/", 1)
+                with fpath.open("rb") as f:
+                    file_data = f.read()
+                part = MIMEBase(main_type, sub_type)
+                part.set_payload(file_data)
+                encoders.encode_base64(part)
+                part.add_header(
+                    "Content-Disposition",
+                    f"attachment; filename={fpath.name}",
+                )
+                message.attach(part)
+                attached_name = fpath.name
+            else:
+                return f"❌ Attachment not found: {attachment_path}"
+        
+        raw = base64.urlsafe_b64encode(message.as_bytes()).decode()
+        draft = service.users().drafts().create(
+            userId="me",
+            body={"message": {"raw": raw}},
+        ).execute()
+        
+        status = f"Draft created: **{subject}** to {to}"
+        if attached_name:
+            status += f"\n📎 Attached: {attached_name}"
+        status += "\nCheck your Gmail drafts to review and send."
+        return status
+    except Exception as e:
+        return f"❌ Failed to create draft: {str(e)}"
