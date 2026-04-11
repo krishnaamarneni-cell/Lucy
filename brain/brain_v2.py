@@ -50,9 +50,23 @@ def think_v2(user_input: str, chat_mode: bool = True) -> str:
     """Run Lucy's brain with Groq native function calling."""
     mem = load_memory()
     mem.setdefault("history", [])
+    mem.setdefault("recent_tools", [])  # last 3 tool results for context
 
     messages = [{"role": "system", "content": SYSTEM_PROMPT}]
-    messages.extend(mem["history"][-10:])
+    
+    # Add recent tool results as context so Groq knows what "it" refers to
+    if mem["recent_tools"]:
+        context_lines = ["# Recent tool results from this conversation:"]
+        for entry in mem["recent_tools"][-3:]:
+            context_lines.append(f"\n## {entry['name']} (called earlier)")
+            context_lines.append(entry['result'][:1000])
+        messages.append({
+            "role": "system",
+            "content": "\n".join(context_lines) + "\n\nUse this context when the user refers to 'it', 'that', 'the email', 'the meeting', etc.",
+        })
+    
+    # Last 6 conversation turns (reduced from 10 to leave room for tool context)
+    messages.extend(mem["history"][-6:])
     messages.append({"role": "user", "content": user_input})
 
     tools_schema = get_tool_schemas()
@@ -117,6 +131,13 @@ def think_v2(user_input: str, chat_mode: bool = True) -> str:
     else:
         # No tool calls — direct response from Groq
         final_text = msg.content or ""
+
+    # Save tool results to recent_tools for next turn's context
+    if msg.tool_calls:
+        for tr in tool_results:
+            mem["recent_tools"].append(tr)
+        # Keep only last 5
+        mem["recent_tools"] = mem["recent_tools"][-5:]
 
     # Save to memory
     mem["history"].append({"role": "user", "content": user_input})
