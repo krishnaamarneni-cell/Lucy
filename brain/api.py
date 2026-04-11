@@ -173,9 +173,10 @@ def chat(req: ChatRequest, authorization: str | None = Header(default=None)):
 
     # Lazy import to avoid cycles at module load
     from brain.llm import think
+    from brain.brain_v2 import think_v2
 
     try:
-        reply = think(req.message, chat_mode=True)
+        reply = think_v2(req.message, chat_mode=True)
     except PermissionDeniedError as e:
         events.publish("action.denied", {"reason": str(e), "action": req.message})
         raise HTTPException(status_code=403, detail=str(e))
