@@ -117,12 +117,12 @@ export function EventStream() {
           </p>
         ) : (
           <ul className="space-y-1">
-            {events.map((ev) => {
+            {events.map((ev, i) => {
               const style = styleForKind(ev.kind);
               const dataStr = formatData(ev.data as Record<string, unknown>);
               return (
                 <li
-                  key={ev.id}
+                  key={`${ev.id}-${i}`}
                   className="rounded border border-transparent px-2 py-1.5 font-mono hover:border-zinc-800 hover:bg-zinc-900"
                 >
                   <div className="flex items-center gap-2">

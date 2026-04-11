@@ -433,8 +433,12 @@ def get_tool_schemas():
     ]
 
 
-def execute_tool(name: str, args: dict) -> str:
+def execute_tool(name: str, args) -> str:
     """Execute a tool by name with given args."""
+    if args is None:
+        args = {}
+    if not isinstance(args, dict):
+        args = {}
     for tool in TOOLS:
         if tool["function"]["name"] == name:
             try:
