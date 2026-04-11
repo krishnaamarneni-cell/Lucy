@@ -196,6 +196,14 @@ def chat(req: ChatRequest, authorization: str | None = Header(default=None)):
     return ChatResponse(reply=reply, mode=get_mode())
 
 
+@app.get("/briefing")
+async def get_briefing():
+    from brain.briefing import generate_briefing
+    briefing = generate_briefing()
+    if briefing:
+        return {"briefing": briefing, "available": True}
+    return {"briefing": "", "available": False}
+
 @app.get("/model")
 async def model_info():
     return get_model_info()

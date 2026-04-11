@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState, KeyboardEvent } from "react";
 import ReactMarkdown from "react-markdown";
 import type { ChatMessage } from "@/lib/types";
-import { sendChat } from "@/lib/lucy-api";
+import { sendChat, getBriefing } from "@/lib/lucy-api";
 
 interface Props {
   speakAloud?: boolean;
@@ -21,6 +21,24 @@ export function ChatBox({ speakAloud = false }: Props) {
       scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
     }
   }, [messages]);
+
+  useEffect(() => {
+    async function fetchBriefing() {
+      try {
+        const data = await getBriefing();
+        if (data?.available && data?.briefing) {
+          const briefMsg: ChatMessage = {
+            id: `b-${Date.now()}`,
+            role: "lucy",
+            text: data.briefing,
+            timestamp: Date.now(),
+          };
+          setMessages((m) => m.length === 0 ? [briefMsg] : m);
+        }
+      } catch {}
+    }
+    fetchBriefing();
+  }, []);
 
   async function handleSend() {
     const text = input.trim();

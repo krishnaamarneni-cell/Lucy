@@ -9,6 +9,8 @@ from brain.reminders import add_reminder
 from brain.volume import handle_volume
 from brain.agents.career import needs_career, ask_career, ask_career_fast, is_heavy_career_task, summarize_for_voice as career_summarize
 from brain.agents.goose import needs_goose, ask_goose, summarize_for_voice as goose_summarize
+from brain.briefing import needs_briefing, force_briefing
+from brain.orchestrator import needs_orchestration, handle_orchestration
 from brain.tasks import needs_tasks, handle_task
 from brain.gmail import needs_gmail, handle_gmail
 from brain.calendar import needs_calendar, handle_calendar
@@ -280,6 +282,15 @@ def think_stream(user_input, chat_mode=False):
     messages += mem["history"][-10:]
 
     # --- Tool branches that bypass the LLM entirely: yield full reply in one chunk ---
+    if needs_orchestration(user_input):
+        print(f"🎯 Orchestrator: {user_input[:80]}")
+        reply = handle_orchestration(user_input)
+        mem["history"].append({"role": "user", "content": user_input})
+        mem["history"].append({"role": "assistant", "content": reply})
+        save_memory(mem)
+        yield reply
+        return
+
     if needs_tasks(user_input):
         print(f"📋 Tasks: {user_input[:80]}")
         reply = handle_task(user_input)
@@ -527,9 +538,44 @@ def think(user_input, chat_mode=False):
         system_msg += f" {memory_context}"
     messages = [{"role": "system", "content": system_msg}]
     messages += mem["history"][-10:]
+    if needs_briefing(user_input):
+        print(f"🌅 Briefing requested")
+        reply = force_briefing()
+        mem["history"].append({"role": "user", "content": user_input})
+        mem["history"].append({"role": "assistant", "content": reply})
+        save_memory(mem)
+        return reply
+    if needs_orchestration(user_input):
+        print(f"🎯 Orchestrator: {user_input[:80]}")
+        reply = handle_orchestration(user_input)
+        mem["history"].append({"role": "user", "content": user_input})
+        mem["history"].append({"role": "assistant", "content": reply})
+        save_memory(mem)
+        return reply
     if needs_tasks(user_input):
         print(f"📋 Tasks: {user_input[:80]}")
         reply = handle_task(user_input)
+        mem["history"].append({"role": "user", "content": user_input})
+        mem["history"].append({"role": "assistant", "content": reply})
+        save_memory(mem)
+        return reply
+    if needs_contacts(user_input):
+        print(f"👤 Contacts: {user_input[:80]}")
+        reply = handle_contacts(user_input)
+        mem["history"].append({"role": "user", "content": user_input})
+        mem["history"].append({"role": "assistant", "content": reply})
+        save_memory(mem)
+        return reply
+    if needs_meet(user_input):
+        print(f"📹 Meet: {user_input[:80]}")
+        reply = handle_meet(user_input)
+        mem["history"].append({"role": "user", "content": user_input})
+        mem["history"].append({"role": "assistant", "content": reply})
+        save_memory(mem)
+        return reply
+    if needs_sheets(user_input):
+        print(f"📊 Sheets: {user_input[:80]}")
+        reply = handle_sheets(user_input)
         mem["history"].append({"role": "user", "content": user_input})
         mem["history"].append({"role": "assistant", "content": reply})
         save_memory(mem)

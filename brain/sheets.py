@@ -15,7 +15,12 @@ SHEETS_TRIGGERS = [
 
 def needs_sheets(text: str) -> bool:
     t = text.lower()
-    return any(trigger in t for trigger in SHEETS_TRIGGERS)
+    if any(trigger in t for trigger in SHEETS_TRIGGERS):
+        return True
+    # Also catch "save ... to a sheet" pattern
+    if "save" in t and "sheet" in t:
+        return True
+    return False
 
 
 def _get_sheets_service():

@@ -114,3 +114,9 @@ export async function setModel(modelId: string) {
   if (!res.ok) throw new Error("Failed to set model");
   return res.json();
 }
+
+export async function getBriefing() {
+  const res = await fetch(`${API_URL}/briefing`, { headers: authHeaders() });
+  if (!res.ok) return null;
+  return res.json();
+}
