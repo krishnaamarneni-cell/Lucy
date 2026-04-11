@@ -66,6 +66,8 @@ GOOSE_KEYWORD_SETS = {
 
 
 def needs_goose(text: str) -> bool:
+    if text.lower().strip().startswith("mentor"):
+        return False
     t = text.lower()
     if any(trigger in t for trigger in GOOSE_TRIGGERS):
         return True
@@ -99,7 +101,8 @@ def _try_direct_shell(task: str) -> dict | None:
     # 2. Check for explicit URLs
     urls = _re.findall(r'https?://[^\s]+', task)
     if not urls:
-        domains = _re.findall(r'(?:www\.)?[a-zA-Z0-9][-a-zA-Z0-9]*\.[a-zA-Z]{2,}(?:\.[a-zA-Z]{2,})?(?:/[^\s]*)?', task)
+        # Only match real web TLDs, not file extensions like .html .py .js
+        domains = _re.findall(r'(?:www\.)?[a-zA-Z0-9][-a-zA-Z0-9]*\.(?:com|org|net|io|dev|ai|co|app|me|xyz|tech|edu|gov|uk|us|in|ca)(?:\.[a-zA-Z]{2,})?(?:/[^\s]*)?', task)
         if domains:
             urls = [domains[0]]
     

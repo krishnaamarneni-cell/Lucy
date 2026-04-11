@@ -42,6 +42,8 @@ KNOWN_SITES = {
 
 
 def resolve_site(text: str) -> str | None:
+    if text.lower().strip().startswith("mentor"):
+        return None
     """Try to find a known site name in the text."""
     t = text.lower()
     

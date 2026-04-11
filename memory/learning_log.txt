@@ -1,0 +1,169 @@
+[22:27:27] === Starting learning session: 31 topics ===
+[22:27:27] 📚 [1/31] Asking mentor about: SAP MM full lifecycle from PR to payment
+[22:28:04]    ✅ Got 6 chars from mentor in 37.3s
+[22:28:04] 📚 [1/31] Asking mentor about: SAP SD order to cash process flow
+[22:28:39]    ✅ Got 6 chars from mentor in 34.9s
+[22:28:39] 📚 [1/31] Asking mentor about: SAP Ariba Buying vs Sourcing vs Contracts differences
+[22:29:12]    ✅ Got 6 chars from mentor in 33.0s
+[22:29:12] 📚 [1/31] Asking mentor about: SAP Master Data Governance (MDG) overview
+[22:29:43]    ✅ Got 6 chars from mentor in 31.1s
+[22:29:43] 📚 [1/31] Asking mentor about: S/4HANA migration strategies - greenfield vs brownfield vs bluefield
+[22:30:22]    ✅ Got 6 chars from mentor in 38.3s
+[22:30:22] 📚 [1/31] Asking mentor about: SAP Fiori apps and UX5 framework
+[22:30:53]    ✅ Got 6 chars from mentor in 31.5s
+[22:30:53] 📚 [1/31] Asking mentor about: SAP Business Technology Platform (BTP) services
+[22:33:04]    ✅ Got 6 chars from mentor in 130.9s
+[22:33:04] 📚 [1/31] Asking mentor about: SAP EWM vs WM differences and when to use which
+[22:33:37]    ✅ Got 6 chars from mentor in 33.0s
+[22:33:37] 📚 [1/31] Asking mentor about: SAP IBP (Integrated Business Planning) capabilities
+[22:34:11]    ✅ Got 6 chars from mentor in 34.1s
+[22:34:11] 📚 [1/31] Asking mentor about: Python async/await patterns and asyncio
+[22:34:44]    ✅ Got 6 chars from mentor in 32.4s
+[22:34:44] 📚 [1/31] Asking mentor about: Python decorators and when to use them
+[22:35:10]    ✅ Got 6 chars from mentor in 26.7s
+[22:35:10] 📚 [1/31] Asking mentor about: Python type hints and mypy best practices
+[22:35:40]    ✅ Got 6 chars from mentor in 29.7s
+[22:35:40] 📚 [1/31] Asking mentor about: FastAPI vs Flask vs Django for modern APIs
+[22:36:13]    ✅ Got 6 chars from mentor in 32.6s
+[22:36:13] 📚 [1/31] Asking mentor about: Python virtual environments and dependency management
+[22:36:42]    ✅ Got 6 chars from mentor in 29.3s
+[22:36:42] 📚 [1/31] Asking mentor about: Python multiprocessing vs multithreading vs async
+[22:37:14]    ✅ Got 6 chars from mentor in 31.7s
+[22:37:14] 📚 [1/31] Asking mentor about: Python testing with pytest and fixtures
+[22:37:41]    ✅ Got 6 chars from mentor in 27.3s
+[22:37:41] 📚 [1/31] Asking mentor about: Python dataclasses and Pydantic for validation
+[22:38:10]    ✅ Got 6 chars from mentor in 29.2s
+[22:38:10] 📚 [1/31] Asking mentor about: Andhra Pradesh culture, food, and traditions
+[22:38:48]    ✅ Got 6 chars from mentor in 37.3s
+[22:38:48] 📚 [1/31] Asking mentor about: Guntur district - history, geography, famous for
+[22:39:17]    ✅ Got 6 chars from mentor in 29.0s
+[22:39:17] 📚 [1/31] Asking mentor about: Telugu language basics - greetings, common phrases, grammar
+[22:39:46]    ✅ Got 6 chars from mentor in 29.1s
+[22:39:46] 📚 [1/31] Asking mentor about: Chennai culture and Tamil traditions
+[22:40:15]    ✅ Got 6 chars from mentor in 29.2s
+[22:40:15] 📚 [1/31] Asking mentor about: Major festivals in Andhra Pradesh - Sankranti, Ugadi, Dussehra
+[22:40:43]    ✅ Got 6 chars from mentor in 28.3s
+[22:40:43] 📚 [1/31] Asking mentor about: Telugu cinema (Tollywood) - history and major figures
+[22:41:13]    ✅ Got 6 chars from mentor in 29.6s
+[22:41:13] 📚 [1/31] Asking mentor about: Andhra cuisine - signature dishes and regional variations
+[22:41:41]    ✅ Got 6 chars from mentor in 28.1s
+[22:41:41] 📚 [1/31] Asking mentor about: Deep work by Cal Newport - key principles
+[22:42:17]    ✅ Got 6 chars from mentor in 36.1s
+[22:42:17] 📚 [1/31] Asking mentor about: Atomic Habits by James Clear - core concepts
+[22:42:47]    ✅ Got 6 chars from mentor in 29.9s
+[22:42:47] 📚 [1/31] Asking mentor about: First principles thinking explained with examples
+[22:43:17]    ✅ Got 6 chars from mentor in 29.7s
+[22:43:17] 📚 [1/31] Asking mentor about: Ray Dalio's principles for life and decision making
+[22:43:49]    ✅ Got 6 chars from mentor in 32.4s
+[22:43:49] 📚 [1/31] Asking mentor about: How to have high-quality productive conversations
+[22:44:18]    ✅ Got 6 chars from mentor in 28.9s
+[22:44:18] 📚 [1/31] Asking mentor about: Stoicism basics - Marcus Aurelius and Epictetus
+[22:44:46]    ✅ Got 6 chars from mentor in 28.6s
+[22:44:46] 📚 [1/31] Asking mentor about: Building a second brain - Tiago Forte's method
+[22:45:21]    ✅ Got 6 chars from mentor in 34.2s
+[09:54:42] === Starting learning session: 32 topics ===
+[09:54:42] 📚 [1/32] Asking mentor about: SAP S/4HANA core architecture and modules
+[09:55:16]    ✅ Got 3223 chars from mentor in 33.5s
+[09:55:18] 📚 [2/32] Asking mentor about: SAP MM full lifecycle from PR to payment
+[09:55:49]    ✅ Got 3368 chars from mentor in 31.1s
+[09:55:51] 📚 [3/32] Asking mentor about: SAP SD order to cash process flow
+[09:56:25]    ✅ Got 3134 chars from mentor in 34.5s
+[09:56:27] 📚 [4/32] Asking mentor about: SAP Ariba Buying vs Sourcing vs Contracts differences
+[09:57:00]    ✅ Got 2844 chars from mentor in 32.1s
+[09:57:02] 📚 [5/32] Asking mentor about: SAP Master Data Governance (MDG) overview
+[09:57:33]    ✅ Got 3073 chars from mentor in 31.3s
+[09:57:35] 📚 [6/32] Asking mentor about: S/4HANA migration strategies - greenfield vs brownfield vs bluefield
+[09:58:05]    ✅ Got 3193 chars from mentor in 30.5s
+[09:58:07] 📚 [7/32] Asking mentor about: SAP Fiori apps and UX5 framework
+[09:58:37]    ✅ Got 2879 chars from mentor in 29.4s
+[09:58:39] 📚 [8/32] Asking mentor about: SAP Business Technology Platform (BTP) services
+[09:59:10]    ✅ Got 3306 chars from mentor in 31.4s
+[09:59:12] 📚 [9/32] Asking mentor about: SAP EWM vs WM differences and when to use which
+[09:59:44]    ✅ Got 2947 chars from mentor in 31.8s
+[09:59:46] 📚 [10/32] Asking mentor about: SAP IBP (Integrated Business Planning) capabilities
+[10:00:18]    ✅ Got 3195 chars from mentor in 31.5s
+[10:00:20] 📚 [11/32] Asking mentor about: Python async/await patterns and asyncio
+[10:00:48]    ✅ Got 2932 chars from mentor in 28.2s
+[10:00:50] 📚 [12/32] Asking mentor about: Python decorators and when to use them
+[10:01:20]    ✅ Got 3103 chars from mentor in 30.4s
+[10:01:22] 📚 [13/32] Asking mentor about: Python type hints and mypy best practices
+[10:01:57]    ✅ Got 3101 chars from mentor in 34.8s
+[10:01:59] 📚 [14/32] Asking mentor about: FastAPI vs Flask vs Django for modern APIs
+[10:02:31]    ✅ Got 3159 chars from mentor in 32.3s
+[10:02:33] 📚 [15/32] Asking mentor about: Python virtual environments and dependency management
+[10:03:03]    ✅ Got 3104 chars from mentor in 29.2s
+[10:03:05] 📚 [16/32] Asking mentor about: Python multiprocessing vs multithreading vs async
+[10:03:31]    ✅ Got 2981 chars from mentor in 26.7s
+[10:03:33] 📚 [17/32] Asking mentor about: Python testing with pytest and fixtures
+[10:04:01]    ✅ Got 3019 chars from mentor in 27.8s
+[10:04:03] 📚 [18/32] Asking mentor about: Python dataclasses and Pydantic for validation
+[10:04:32]    ✅ Got 2952 chars from mentor in 28.5s
+[10:04:34] 📚 [19/32] Asking mentor about: Andhra Pradesh culture, food, and traditions
+[10:05:06]    ✅ Got 3265 chars from mentor in 32.7s
+[10:05:08] 📚 [20/32] Asking mentor about: Guntur district - history, geography, famous for
+[10:05:35]    ✅ Got 2966 chars from mentor in 26.4s
+[10:05:37] 📚 [21/32] Asking mentor about: Telugu language basics - greetings, common phrases, grammar
+[10:06:08]    ✅ Got 2524 chars from mentor in 31.3s
+[10:06:10] 📚 [22/32] Asking mentor about: Chennai culture and Tamil traditions
+[10:06:38]    ✅ Got 2910 chars from mentor in 28.3s
+[10:06:40] 📚 [23/32] Asking mentor about: Major festivals in Andhra Pradesh - Sankranti, Ugadi, Dussehra
+[10:07:11]    ✅ Got 2833 chars from mentor in 31.0s
+[10:07:13] 📚 [24/32] Asking mentor about: Telugu cinema (Tollywood) - history and major figures
+[10:07:47]    ✅ Got 3058 chars from mentor in 33.5s
+[10:07:49] 📚 [25/32] Asking mentor about: Andhra cuisine - signature dishes and regional variations
+[10:08:17]    ✅ Got 2604 chars from mentor in 28.4s
+[10:08:19] 📚 [26/32] Asking mentor about: Deep work by Cal Newport - key principles
+[10:08:51]    ✅ Got 3339 chars from mentor in 31.6s
+[10:08:53] 📚 [27/32] Asking mentor about: Atomic Habits by James Clear - core concepts
+[10:09:22]    ✅ Got 2979 chars from mentor in 28.9s
+[10:09:24] 📚 [28/32] Asking mentor about: First principles thinking explained with examples
+[10:09:54]    ✅ Got 2968 chars from mentor in 30.7s
+[10:09:54] 📚 [29/32] Asking mentor about: Ray Dalio's principles for life and decision making
+[10:10:27]    ✅ Got 3118 chars from mentor in 33.1s
+[10:10:29] 📚 [30/32] Asking mentor about: How to have high-quality productive conversations
+[10:11:00]    ✅ Got 3183 chars from mentor in 30.9s
+[10:11:02] 📚 [31/32] Asking mentor about: Stoicism basics - Marcus Aurelius and Epictetus
+[10:11:32]    ✅ Got 2955 chars from mentor in 30.1s
+[10:11:34] 📚 [32/32] Asking mentor about: Building a second brain - Tiago Forte's method
+[10:12:06]    ✅ Got 2886 chars from mentor in 32.2s
+[10:52:57] === Starting learning session: 20 topics ===
+[10:52:57] 📚 [1/20] Asking mentor about: Next.js 15 App Router patterns and best practices
+[10:53:29]    ✅ Got 3046 chars from mentor in 32.3s
+[10:53:31] 📚 [2/20] Asking mentor about: Tailwind CSS v4 utility patterns for modern layouts
+[10:54:07]    ✅ Got 2681 chars from mentor in 35.9s
+[10:54:09] 📚 [3/20] Asking mentor about: shadcn/ui component library structure and usage
+[10:54:37]    ✅ Got 2873 chars from mentor in 27.7s
+[10:54:39] 📚 [4/20] Asking mentor about: Framer Motion animation patterns for landing pages
+[10:55:10]    ✅ Got 3266 chars from mentor in 31.9s
+[10:55:12] 📚 [5/20] Asking mentor about: Linear design system principles and tokens
+[10:55:39]    ✅ Got 2670 chars from mentor in 27.0s
+[10:55:41] 📚 [6/20] Asking mentor about: Stripe design system and color theory
+[10:56:12]    ✅ Got 3000 chars from mentor in 30.8s
+[10:56:14] 📚 [7/20] Asking mentor about: Vercel design system and typography
+[10:56:37]    ✅ Got 2634 chars from mentor in 23.2s
+[10:56:39] 📚 [8/20] Asking mentor about: Hero section design patterns that convert
+[10:57:07]    ✅ Got 2687 chars from mentor in 27.6s
+[10:57:09] 📚 [9/20] Asking mentor about: SaaS pricing table design patterns
+[10:57:37]    ✅ Got 2770 chars from mentor in 27.6s
+[10:57:39] 📚 [10/20] Asking mentor about: Feature grid layout patterns for landing pages
+[10:58:05]    ✅ Got 2712 chars from mentor in 26.0s
+[10:58:07] 📚 [11/20] Asking mentor about: Testimonial section design patterns
+[10:58:34]    ✅ Got 2715 chars from mentor in 27.3s
+[10:58:36] 📚 [12/20] Asking mentor about: Footer design best practices for SaaS
+[10:59:06]    ✅ Got 2943 chars from mentor in 29.9s
+[10:59:08] 📚 [13/20] Asking mentor about: Mobile-first responsive design principles
+[10:59:32]    ✅ Got 2469 chars from mentor in 23.8s
+[10:59:34] 📚 [14/20] Asking mentor about: Web accessibility WCAG 2.1 basics for developers
+[11:00:03]    ✅ Got 2926 chars from mentor in 29.5s
+[11:00:05] 📚 [15/20] Asking mentor about: Core Web Vitals optimization techniques
+[11:00:32]    ✅ Got 3113 chars from mentor in 27.1s
+[11:00:34] 📚 [16/20] Asking mentor about: React server components vs client components
+[11:01:03]    ✅ Got 2992 chars from mentor in 28.4s
+[11:01:05] 📚 [17/20] Asking mentor about: Playwright for visual regression testing
+[11:01:31]    ✅ Got 2999 chars from mentor in 26.0s
+[11:01:33] 📚 [18/20] Asking mentor about: Vercel deployment and preview URLs explained
+[11:02:02]    ✅ Got 3178 chars from mentor in 29.4s
+[11:02:04] 📚 [19/20] Asking mentor about: Modern SaaS landing page anatomy and sections
+[11:02:31]    ✅ Got 2540 chars from mentor in 26.4s
+[11:02:33] 📚 [20/20] Asking mentor about: SEO fundamentals for Next.js sites
+[11:03:07]    ✅ Got 2843 chars from mentor in 34.1s

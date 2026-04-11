@@ -1,0 +1,448 @@
+[
+  {
+    "id": 1,
+    "topic": "SAP S/4HANA core architecture and modules",
+    "category": "sap",
+    "status": "completed",
+    "added": "2026-04-10T22:18:22.503245",
+    "error": "write() argument must be str, not dict",
+    "completed_at": "2026-04-11T09:55:16.371253"
+  },
+  {
+    "id": 2,
+    "topic": "SAP MM full lifecycle from PR to payment",
+    "category": "sap",
+    "status": "completed",
+    "added": "2026-04-10T22:18:22.504867",
+    "error": "write() argument must be str, not dict",
+    "completed_at": "2026-04-11T09:55:49.479538"
+  },
+  {
+    "id": 3,
+    "topic": "SAP SD order to cash process flow",
+    "category": "sap",
+    "status": "completed",
+    "added": "2026-04-10T22:18:22.505647",
+    "error": "write() argument must be str, not dict",
+    "completed_at": "2026-04-11T09:56:25.938858"
+  },
+  {
+    "id": 4,
+    "topic": "SAP Ariba Buying vs Sourcing vs Contracts differences",
+    "category": "sap",
+    "status": "completed",
+    "added": "2026-04-10T22:18:22.506550",
+    "error": "write() argument must be str, not dict",
+    "completed_at": "2026-04-11T09:57:00.067010"
+  },
+  {
+    "id": 5,
+    "topic": "SAP Master Data Governance (MDG) overview",
+    "category": "sap",
+    "status": "completed",
+    "added": "2026-04-10T22:18:22.507834",
+    "error": "write() argument must be str, not dict",
+    "completed_at": "2026-04-11T09:57:33.443126"
+  },
+  {
+    "id": 6,
+    "topic": "S/4HANA migration strategies - greenfield vs brownfield vs bluefield",
+    "category": "sap",
+    "status": "completed",
+    "added": "2026-04-10T22:18:22.508532",
+    "error": "write() argument must be str, not dict",
+    "completed_at": "2026-04-11T09:58:05.973876"
+  },
+  {
+    "id": 7,
+    "topic": "SAP Fiori apps and UX5 framework",
+    "category": "sap",
+    "status": "completed",
+    "added": "2026-04-10T22:18:22.509102",
+    "error": "write() argument must be str, not dict",
+    "completed_at": "2026-04-11T09:58:37.419772"
+  },
+  {
+    "id": 8,
+    "topic": "SAP Business Technology Platform (BTP) services",
+    "category": "sap",
+    "status": "completed",
+    "added": "2026-04-10T22:18:22.509869",
+    "error": "write() argument must be str, not dict",
+    "completed_at": "2026-04-11T09:59:10.842988"
+  },
+  {
+    "id": 9,
+    "topic": "SAP EWM vs WM differences and when to use which",
+    "category": "sap",
+    "status": "completed",
+    "added": "2026-04-10T22:18:22.511658",
+    "error": "write() argument must be str, not dict",
+    "completed_at": "2026-04-11T09:59:44.645983"
+  },
+  {
+    "id": 10,
+    "topic": "SAP IBP (Integrated Business Planning) capabilities",
+    "category": "sap",
+    "status": "completed",
+    "added": "2026-04-10T22:18:22.512123",
+    "error": "write() argument must be str, not dict",
+    "completed_at": "2026-04-11T10:00:18.150806"
+  },
+  {
+    "id": 11,
+    "topic": "Python async/await patterns and asyncio",
+    "category": "python",
+    "status": "completed",
+    "added": "2026-04-10T22:25:06.043285",
+    "error": "write() argument must be str, not dict",
+    "completed_at": "2026-04-11T10:00:48.358203"
+  },
+  {
+    "id": 12,
+    "topic": "Python decorators and when to use them",
+    "category": "python",
+    "status": "completed",
+    "added": "2026-04-10T22:25:06.044267",
+    "error": "write() argument must be str, not dict",
+    "completed_at": "2026-04-11T10:01:20.803465"
+  },
+  {
+    "id": 13,
+    "topic": "Python type hints and mypy best practices",
+    "category": "python",
+    "status": "completed",
+    "added": "2026-04-10T22:25:06.044789",
+    "error": "write() argument must be str, not dict",
+    "completed_at": "2026-04-11T10:01:57.634929"
+  },
+  {
+    "id": 14,
+    "topic": "FastAPI vs Flask vs Django for modern APIs",
+    "category": "python",
+    "status": "completed",
+    "added": "2026-04-10T22:25:06.045273",
+    "error": "write() argument must be str, not dict",
+    "completed_at": "2026-04-11T10:02:31.967938"
+  },
+  {
+    "id": 15,
+    "topic": "Python virtual environments and dependency management",
+    "category": "python",
+    "status": "completed",
+    "added": "2026-04-10T22:25:06.046342",
+    "error": "write() argument must be str, not dict",
+    "completed_at": "2026-04-11T10:03:03.164699"
+  },
+  {
+    "id": 16,
+    "topic": "Python multiprocessing vs multithreading vs async",
+    "category": "python",
+    "status": "completed",
+    "added": "2026-04-10T22:25:06.046857",
+    "error": "write() argument must be str, not dict",
+    "completed_at": "2026-04-11T10:03:31.880723"
+  },
+  {
+    "id": 17,
+    "topic": "Python testing with pytest and fixtures",
+    "category": "python",
+    "status": "completed",
+    "added": "2026-04-10T22:25:06.047462",
+    "error": "write() argument must be str, not dict",
+    "completed_at": "2026-04-11T10:04:01.639078"
+  },
+  {
+    "id": 18,
+    "topic": "Python dataclasses and Pydantic for validation",
+    "category": "python",
+    "status": "completed",
+    "added": "2026-04-10T22:25:06.049542",
+    "error": "write() argument must be str, not dict",
+    "completed_at": "2026-04-11T10:04:32.108604"
+  },
+  {
+    "id": 19,
+    "topic": "Andhra Pradesh culture, food, and traditions",
+    "category": "culture",
+    "status": "completed",
+    "added": "2026-04-10T22:25:06.050112",
+    "error": "write() argument must be str, not dict",
+    "completed_at": "2026-04-11T10:05:06.761462"
+  },
+  {
+    "id": 20,
+    "topic": "Guntur district - history, geography, famous for",
+    "category": "culture",
+    "status": "completed",
+    "added": "2026-04-10T22:25:06.050641",
+    "error": "write() argument must be str, not dict",
+    "completed_at": "2026-04-11T10:05:35.195293"
+  },
+  {
+    "id": 21,
+    "topic": "Telugu language basics - greetings, common phrases, grammar",
+    "category": "culture",
+    "status": "completed",
+    "added": "2026-04-10T22:25:06.051437",
+    "error": "write() argument must be str, not dict",
+    "completed_at": "2026-04-11T10:06:08.520130"
+  },
+  {
+    "id": 22,
+    "topic": "Chennai culture and Tamil traditions",
+    "category": "culture",
+    "status": "completed",
+    "added": "2026-04-10T22:25:06.052180",
+    "error": "write() argument must be str, not dict",
+    "completed_at": "2026-04-11T10:06:38.865125"
+  },
+  {
+    "id": 23,
+    "topic": "Major festivals in Andhra Pradesh - Sankranti, Ugadi, Dussehra",
+    "category": "culture",
+    "status": "completed",
+    "added": "2026-04-10T22:25:06.052777",
+    "error": "write() argument must be str, not dict",
+    "completed_at": "2026-04-11T10:07:11.890604"
+  },
+  {
+    "id": 24,
+    "topic": "Telugu cinema (Tollywood) - history and major figures",
+    "category": "culture",
+    "status": "completed",
+    "added": "2026-04-10T22:25:06.053466",
+    "error": "write() argument must be str, not dict",
+    "completed_at": "2026-04-11T10:07:47.366678"
+  },
+  {
+    "id": 25,
+    "topic": "Andhra cuisine - signature dishes and regional variations",
+    "category": "culture",
+    "status": "completed",
+    "added": "2026-04-10T22:25:06.054059",
+    "error": "write() argument must be str, not dict",
+    "completed_at": "2026-04-11T10:08:17.779954"
+  },
+  {
+    "id": 26,
+    "topic": "Deep work by Cal Newport - key principles",
+    "category": "self_improvement",
+    "status": "completed",
+    "added": "2026-04-10T22:25:06.054671",
+    "error": "write() argument must be str, not dict",
+    "completed_at": "2026-04-11T10:08:51.350778"
+  },
+  {
+    "id": 27,
+    "topic": "Atomic Habits by James Clear - core concepts",
+    "category": "self_improvement",
+    "status": "completed",
+    "added": "2026-04-10T22:25:06.055575",
+    "error": "write() argument must be str, not dict",
+    "completed_at": "2026-04-11T10:09:22.272754"
+  },
+  {
+    "id": 28,
+    "topic": "First principles thinking explained with examples",
+    "category": "self_improvement",
+    "status": "completed",
+    "added": "2026-04-10T22:25:06.056253",
+    "error": "write() argument must be str, not dict",
+    "completed_at": "2026-04-11T10:09:54.961043"
+  },
+  {
+    "id": 29,
+    "topic": "Ray Dalio's principles for life and decision making",
+    "category": "self_improvement",
+    "status": "completed",
+    "added": "2026-04-10T22:25:06.057120",
+    "error": "write() argument must be str, not dict",
+    "completed_at": "2026-04-11T10:10:27.326865"
+  },
+  {
+    "id": 30,
+    "topic": "How to have high-quality productive conversations",
+    "category": "self_improvement",
+    "status": "completed",
+    "added": "2026-04-10T22:25:06.057605",
+    "error": "write() argument must be str, not dict",
+    "completed_at": "2026-04-11T10:11:00.239799"
+  },
+  {
+    "id": 31,
+    "topic": "Stoicism basics - Marcus Aurelius and Epictetus",
+    "category": "self_improvement",
+    "status": "completed",
+    "added": "2026-04-10T22:25:06.058305",
+    "completed_at": "2026-04-11T10:11:32.369097"
+  },
+  {
+    "id": 32,
+    "topic": "Building a second brain - Tiago Forte's method",
+    "category": "self_improvement",
+    "status": "completed",
+    "added": "2026-04-10T22:25:06.058994",
+    "completed_at": "2026-04-11T10:12:06.560981"
+  },
+  {
+    "id": 33,
+    "topic": "Next.js 15 App Router patterns and best practices",
+    "category": "web",
+    "status": "completed",
+    "added": "2026-04-11T10:52:41.900952",
+    "completed_at": "2026-04-11T10:53:29.494956"
+  },
+  {
+    "id": 34,
+    "topic": "Tailwind CSS v4 utility patterns for modern layouts",
+    "category": "web",
+    "status": "completed",
+    "added": "2026-04-11T10:52:41.901670",
+    "completed_at": "2026-04-11T10:54:07.393951"
+  },
+  {
+    "id": 35,
+    "topic": "shadcn/ui component library structure and usage",
+    "category": "web",
+    "status": "completed",
+    "added": "2026-04-11T10:52:41.902580",
+    "completed_at": "2026-04-11T10:54:37.112227"
+  },
+  {
+    "id": 36,
+    "topic": "Framer Motion animation patterns for landing pages",
+    "category": "web",
+    "status": "completed",
+    "added": "2026-04-11T10:52:41.903436",
+    "completed_at": "2026-04-11T10:55:10.994736"
+  },
+  {
+    "id": 37,
+    "topic": "Linear design system principles and tokens",
+    "category": "web",
+    "status": "completed",
+    "added": "2026-04-11T10:52:41.904238",
+    "completed_at": "2026-04-11T10:55:39.977341"
+  },
+  {
+    "id": 38,
+    "topic": "Stripe design system and color theory",
+    "category": "web",
+    "status": "completed",
+    "added": "2026-04-11T10:52:41.905214",
+    "completed_at": "2026-04-11T10:56:12.778696"
+  },
+  {
+    "id": 39,
+    "topic": "Vercel design system and typography",
+    "category": "web",
+    "status": "completed",
+    "added": "2026-04-11T10:52:41.906029",
+    "completed_at": "2026-04-11T10:56:37.973129"
+  },
+  {
+    "id": 40,
+    "topic": "Hero section design patterns that convert",
+    "category": "web",
+    "status": "completed",
+    "added": "2026-04-11T10:52:41.906699",
+    "completed_at": "2026-04-11T10:57:07.581547"
+  },
+  {
+    "id": 41,
+    "topic": "SaaS pricing table design patterns",
+    "category": "web",
+    "status": "completed",
+    "added": "2026-04-11T10:52:41.907250",
+    "completed_at": "2026-04-11T10:57:37.204433"
+  },
+  {
+    "id": 42,
+    "topic": "Feature grid layout patterns for landing pages",
+    "category": "web",
+    "status": "completed",
+    "added": "2026-04-11T10:52:41.907947",
+    "completed_at": "2026-04-11T10:58:05.207225"
+  },
+  {
+    "id": 43,
+    "topic": "Testimonial section design patterns",
+    "category": "web",
+    "status": "completed",
+    "added": "2026-04-11T10:52:41.908711",
+    "completed_at": "2026-04-11T10:58:34.464641"
+  },
+  {
+    "id": 44,
+    "topic": "Footer design best practices for SaaS",
+    "category": "web",
+    "status": "completed",
+    "added": "2026-04-11T10:52:41.909294",
+    "completed_at": "2026-04-11T10:59:06.323140"
+  },
+  {
+    "id": 45,
+    "topic": "Mobile-first responsive design principles",
+    "category": "web",
+    "status": "completed",
+    "added": "2026-04-11T10:52:41.909779",
+    "completed_at": "2026-04-11T10:59:32.111007"
+  },
+  {
+    "id": 46,
+    "topic": "Web accessibility WCAG 2.1 basics for developers",
+    "category": "web",
+    "status": "completed",
+    "added": "2026-04-11T10:52:41.910254",
+    "completed_at": "2026-04-11T11:00:03.666794"
+  },
+  {
+    "id": 47,
+    "topic": "Core Web Vitals optimization techniques",
+    "category": "web",
+    "status": "completed",
+    "added": "2026-04-11T10:52:41.910712",
+    "completed_at": "2026-04-11T11:00:32.814549"
+  },
+  {
+    "id": 48,
+    "topic": "React server components vs client components",
+    "category": "web",
+    "status": "completed",
+    "added": "2026-04-11T10:52:41.911243",
+    "completed_at": "2026-04-11T11:01:03.224911"
+  },
+  {
+    "id": 49,
+    "topic": "Playwright for visual regression testing",
+    "category": "web",
+    "status": "completed",
+    "added": "2026-04-11T10:52:41.915531",
+    "completed_at": "2026-04-11T11:01:31.215011"
+  },
+  {
+    "id": 50,
+    "topic": "Vercel deployment and preview URLs explained",
+    "category": "web",
+    "status": "completed",
+    "added": "2026-04-11T10:52:41.915960",
+    "completed_at": "2026-04-11T11:02:02.636056"
+  },
+  {
+    "id": 51,
+    "topic": "Modern SaaS landing page anatomy and sections",
+    "category": "web",
+    "status": "completed",
+    "added": "2026-04-11T10:52:41.916294",
+    "completed_at": "2026-04-11T11:02:31.055725"
+  },
+  {
+    "id": 52,
+    "topic": "SEO fundamentals for Next.js sites",
+    "category": "web",
+    "status": "completed",
+    "added": "2026-04-11T10:52:41.916688",
+    "completed_at": "2026-04-11T11:03:07.185879"
+  }
+]

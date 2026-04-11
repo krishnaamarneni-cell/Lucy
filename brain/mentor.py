@@ -117,14 +117,26 @@ def ask_mentor(task: str, workspace: str = None, timeout: int = 300, voice_mode:
         A dict with task, workspace, output, error, success, duration_s.
     """
     if workspace is None:
-        workspace = tempfile.mkdtemp(prefix="lucy-mentor-")
+        import uuid
+        persistent_dir = Path.home() / "Lucy" / "mentor_workspace"
+        persistent_dir.mkdir(exist_ok=True)
+        workspace_name = f"task-{uuid.uuid4().hex[:8]}"
+        workspace = str(persistent_dir / workspace_name)
+        Path(workspace).mkdir(exist_ok=True)
     else:
         Path(workspace).mkdir(parents=True, exist_ok=True)
 
     start = time.time()
     try:
+        prompt_text = (wrap_for_voice(task) if voice_mode else task) + _get_design_context(task)
         result = subprocess.run(
-            [CLAUDE_BIN, "-p", (wrap_for_voice(task) if voice_mode else task) + _get_design_context(task)],
+            [
+                CLAUDE_BIN,
+                "-p",
+                "--permission-mode", "acceptEdits",
+                "--allowedTools", "Write,Edit,Read,Bash,Glob,Grep",
+            ],
+            input=prompt_text,
             cwd=workspace,
             capture_output=True,
             text=True,

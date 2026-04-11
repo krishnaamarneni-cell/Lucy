@@ -17,11 +17,14 @@ CONTACTS_TRIGGERS = [
 
 def needs_contacts(text: str) -> bool:
     t = text.lower()
-    # Don't trigger on "sheet called Contacts" or "save to contacts sheet"
     if any(w in t for w in ["sheet", "spreadsheet", "save all", "save to sheet"]):
         return False
-    # Don't trigger on "check my emails" type requests
     if any(w in t for w in ["check my email", "read email", "show email", "my emails"]):
+        return False
+    # Don't trigger on "find email for X at domain.com" (email finder)
+    if "find" in t and "email" in t and ("@" in text or "." in t.split("at")[-1] if "at" in t else False):
+        return False
+    if "find email for" in t or "guess email" in t or "email for" in t and "at " in t:
         return False
     return any(trigger in t for trigger in CONTACTS_TRIGGERS)
 

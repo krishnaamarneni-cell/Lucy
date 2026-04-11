@@ -10,6 +10,12 @@ from brain.volume import handle_volume
 from brain.agents.career import needs_career, ask_career, ask_career_fast, is_heavy_career_task, summarize_for_voice as career_summarize
 from brain.agents.goose import needs_goose, ask_goose, summarize_for_voice as goose_summarize
 from brain.briefing import needs_briefing, force_briefing
+from brain.learning import needs_learning, handle_learning
+from brain.builder import needs_builder, handle_builder
+from brain.deployer import needs_deployer, handle_deployer
+from brain.music import needs_music, handle_music
+from brain.email_finder import needs_email_finder, handle_email_finder
+from brain.ceo import execute as ceo_execute
 from brain.orchestrator import needs_orchestration, handle_orchestration
 from brain.tasks import needs_tasks, handle_task
 from brain.gmail import needs_gmail, handle_gmail
@@ -559,6 +565,41 @@ def think(user_input, chat_mode=False):
         mem["history"].append({"role": "assistant", "content": reply})
         save_memory(mem)
         return reply
+    if needs_deployer(user_input):
+        print(f"🚀 Deployer: {user_input[:80]}")
+        reply = handle_deployer(user_input)
+        mem["history"].append({"role": "user", "content": user_input})
+        mem["history"].append({"role": "assistant", "content": reply})
+        save_memory(mem)
+        return reply
+    if needs_builder(user_input):
+        print(f"🏗️ Builder: {user_input[:80]}")
+        reply = handle_builder(user_input)
+        mem["history"].append({"role": "user", "content": user_input})
+        mem["history"].append({"role": "assistant", "content": reply})
+        save_memory(mem)
+        return reply
+    if needs_learning(user_input):
+        print(f"📚 Learning: {user_input[:80]}")
+        reply = handle_learning(user_input)
+        mem["history"].append({"role": "user", "content": user_input})
+        mem["history"].append({"role": "assistant", "content": reply})
+        save_memory(mem)
+        return reply
+    if needs_music(user_input):
+        print(f"🎵 Music: {user_input[:80]}")
+        reply = handle_music(user_input)
+        mem["history"].append({"role": "user", "content": user_input})
+        mem["history"].append({"role": "assistant", "content": reply})
+        save_memory(mem)
+        return reply
+    if needs_email_finder(user_input):
+        print(f"🔍 Email finder: {user_input[:80]}")
+        reply = handle_email_finder(user_input)
+        mem["history"].append({"role": "user", "content": user_input})
+        mem["history"].append({"role": "assistant", "content": reply})
+        save_memory(mem)
+        return reply
     if needs_contacts(user_input):
         print(f"👤 Contacts: {user_input[:80]}")
         reply = handle_contacts(user_input)
@@ -576,6 +617,13 @@ def think(user_input, chat_mode=False):
     if needs_sheets(user_input):
         print(f"📊 Sheets: {user_input[:80]}")
         reply = handle_sheets(user_input)
+        mem["history"].append({"role": "user", "content": user_input})
+        mem["history"].append({"role": "assistant", "content": reply})
+        save_memory(mem)
+        return reply
+    if needs_email_finder(user_input):
+        print(f"🔍 Email finder: {user_input[:80]}")
+        reply = handle_email_finder(user_input)
         mem["history"].append({"role": "user", "content": user_input})
         mem["history"].append({"role": "assistant", "content": reply})
         save_memory(mem)
